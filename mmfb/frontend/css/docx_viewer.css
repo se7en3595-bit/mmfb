@@ -1,0 +1,210 @@
+/* MMFB Docx Viewer 样式 */
+
+.docx-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-bg);
+}
+
+/* ========== 工具栏 ========== */
+.docx-viewer__toolbar {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    background: var(--color-bg);
+}
+
+.docx-viewer__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.docx-viewer__status {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.docx-viewer__save-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: #fff;
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.docx-viewer__save-btn:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.docx-viewer__save-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--color-border);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+}
+
+/* ========== 主体 ========== */
+.docx-viewer__body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.docx-viewer__body--preview {
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-xl);
+}
+
+.docx-viewer__body--edit {
+    overflow: auto;
+}
+
+/* ========== 预览模式 ========== */
+.docx-preview {
+    max-width: 800px;
+    width: 100%;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    line-height: 1.8;
+    padding-bottom: var(--spacing-2xl);
+}
+
+.docx-body {
+    max-width: 100%;
+}
+
+.docx-body .docx-para {
+    margin: 0 0 var(--spacing-sm);
+    line-height: 1.75;
+    color: var(--color-text-primary);
+}
+
+.docx-body .docx-para--empty {
+    height: var(--spacing-md);
+}
+
+.docx-body h1.docx-para,
+.docx-body h2.docx-para,
+.docx-body h3.docx-para,
+.docx-body h4.docx-para,
+.docx-body h5.docx-para,
+.docx-body h6.docx-para {
+    margin: var(--spacing-xl) 0 var(--spacing-sm);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.docx-body h1.docx-para { font-size: var(--font-size-3xl); }
+.docx-body h2.docx-para { font-size: var(--font-size-2xl); }
+.docx-body h3.docx-para { font-size: var(--font-size-xl); }
+.docx-body h4.docx-para { font-size: var(--font-size-lg); }
+.docx-body h5.docx-para { font-size: var(--font-size-md); }
+.docx-body h6.docx-para { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+.docx-body .docx-list-item {
+    margin-left: var(--spacing-xl);
+    list-style: disc;
+}
+
+/* 表格 */
+.docx-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
+    table-layout: fixed;
+}
+
+.docx-table td {
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    word-break: break-word;
+    vertical-align: top;
+}
+
+.docx-table tr:nth-child(even) td {
+    background: var(--color-bg-hover);
+}
+
+/* 错误 */
+.docx-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: var(--color-text-muted);
+}
+
+.docx-error__icon {
+    font-size: 32px;
+}
+
+.docx-error__msg {
+    font-size: var(--font-size-sm);
+    max-width: 500px;
+    text-align: center;
+    word-break: break-word;
+}
+
+.docx-error {
+    color: #d94f4f;
+}
+
+/* ========== 编辑器（编辑模式） ========== */
+.docx-editor {
+    padding: var(--spacing-md) var(--spacing-xl);
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.docx-editor__hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg-hover);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.docx-editor__textarea {
+    width: 100%;
+    min-height: 28px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    resize: vertical;
+    margin-bottom: 4px;
+    display: block;
+    box-sizing: border-box;
+}
+
+.docx-editor__textarea:focus {
+    outline: 1px solid var(--color-accent);
+    background: var(--color-bg);
+}
+
+.docx-editor__empty {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-xl);
+}

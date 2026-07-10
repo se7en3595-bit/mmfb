@@ -1,0 +1,203 @@
+/* ========== 打开历史页面 ========== */
+
+.history-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 顶部帽子 */
+.history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md) var(--spacing-xl);
+    flex-shrink: 0;
+}
+
+.history-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.history-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.history-count {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.history-clear-btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.history-clear-btn:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+/* 滚动体 */
+.history-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+}
+
+/* 分组标签 */
+.history-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.history-group__label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--spacing-sm) 0;
+    position: sticky;
+    top: 0;
+    background: var(--color-bg);
+    z-index: 1;
+}
+
+/* 列表 */
+.history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* 条目 */
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    user-select: none;
+}
+
+.history-item:hover {
+    background: var(--color-bg-hover);
+}
+
+.history-item:active {
+    background: var(--color-bg-active);
+}
+
+.history-item__icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-sm);
+}
+
+.history-item__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.history-item__name {
+    font-size: var(--font-size-md);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item__dir {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-item__time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.history-item__del {
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.history-item:hover .history-item__del {
+    opacity: 1;
+}
+
+.history-item__del:hover {
+    background: var(--color-error);
+    color: #fff;
+}
+
+/* 空状态 */
+.history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 80px 0;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.history-empty__icon {
+    font-size: 56px;
+    opacity: 0.4;
+    margin-bottom: var(--spacing-sm);
+}
+
+.history-empty__title {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.history-empty__subtitle {
+    font-size: var(--font-size-sm);
+    max-width: 320px;
+    line-height: 1.6;
+}

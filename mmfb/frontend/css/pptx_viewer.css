@@ -1,0 +1,405 @@
+/**
+ * MMFB PPTX Viewer Styles
+ * 幻灯片查看器样式（缩略图列表 + 预览区 + 全屏演示）
+ */
+
+/* ==================== 布局 ==================== */
+.pptx-viewer {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary, #fff);
+    color: var(--text-primary, #333);
+    font-family: var(--font-main, 'Segoe UI', sans-serif);
+}
+
+/* ==================== 左侧缩略图列表 ==================== */
+.pptx-viewer__sidebar {
+    width: 160px;
+    min-width: 120px;
+    max-width: 220px;
+    background: var(--bg-secondary, #f8f5f0);
+    border-right: 1px solid var(--border-color, #e0dcd5);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color, #ccc) transparent;
+}
+
+.pptx-viewer__sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.pptx-viewer__sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color, #ccc);
+    border-radius: 2px;
+}
+
+/* 单个缩略图卡片 */
+.pptx-thumb {
+    position: relative;
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.pptx-thumb:hover {
+    border-color: var(--accent-color, #8b7355);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pptx-thumb.active {
+    border-color: var(--accent-color, #8b7355);
+    box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.3);
+}
+
+/* 缩略图画布 */
+.pptx-thumb__canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: white;
+    display: block;
+}
+
+/* 缩略图编号 */
+.pptx-thumb__label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.55);
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    padding: 2px 4px;
+    pointer-events: none;
+}
+
+/* 缩略图阴影叠加（用于显示文本占位） */
+.pptx-thumb__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px;
+    text-align: center;
+    word-break: break-word;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+/* ==================== 主预览区 ==================== */
+.pptx-viewer__main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 工具栏 */
+.pptx-viewer__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-secondary, #f8f5f0);
+    border-bottom: 1px solid var(--border-color, #e0dcd5);
+    font-size: 13px;
+    min-height: 36px;
+}
+
+.pptx-toolbar__title {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pptx-toolbar__btn {
+    background: none;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-primary, #333);
+    background: white;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.pptx-toolbar__btn:hover {
+    background: var(--bg-hover, #f0ede8);
+    border-color: var(--accent-color, #8b7355);
+}
+
+.pptx-toolbar__nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pptx-nav__btn {
+    background: white;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.pptx-nav__btn:hover:not(:disabled) {
+    background: var(--bg-hover, #f0ede8);
+    border-color: var(--accent-color, #8b7355);
+}
+
+.pptx-nav__btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.pptx-nav__info {
+    font-size: 12px;
+    color: var(--text-secondary, #666);
+    min-width: 60px;
+    text-align: center;
+}
+
+/* 幻灯片预览区 */
+.pptx-viewer__slide {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 16px;
+    background: var(--bg-canvas, #e8e5e0);
+    position: relative;
+}
+
+/* 单张幻灯片容器（SVG 渲染） */
+.pptx-slide-canvas {
+    background: white;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.pptx-slide-canvas__shape {
+    position: absolute;
+    overflow: hidden;
+}
+
+.pptx-slide-canvas__text {
+    position: absolute;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.pptx-slide-canvas__image {
+    position: absolute;
+    overflow: hidden;
+}
+
+.pptx-slide-canvas__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    display: block;
+}
+
+/* 表格 */
+.pptx-slide-canvas__table {
+    position: absolute;
+    overflow: hidden;
+    border-collapse: collapse;
+}
+
+.pptx-slide-canvas__table td,
+.pptx-slide-canvas__table th {
+    border: 1px solid #999;
+    padding: 4px 6px;
+    font-size: 12px;
+    background: white;
+    color: #333;
+    vertical-align: top;
+    text-align: left;
+}
+
+/* ==================== 备注面板 ==================== */
+.pptx-viewer__notes {
+    border-top: 1px solid var(--border-color, #e0dcd5);
+    background: var(--bg-secondary, #f8f5f0);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-secondary, #666);
+    max-height: 120px;
+    overflow-y: auto;
+    display: none;
+}
+
+.pptx-viewer__notes.visible {
+    display: block;
+}
+
+.pptx-viewer__notes-label {
+    font-weight: 500;
+    color: var(--text-primary, #444);
+    margin-bottom: 4px;
+}
+
+.pptx-viewer__notes-text {
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* ==================== 全屏演示模式 ==================== */
+.pptx-presentation {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: none;
+}
+
+.pptx-presentation.interactive {
+    cursor: default;
+}
+
+.pptx-presentation__slide {
+    background: white;
+    position: relative;
+    /* 最大不超过视口 95% */
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
+}
+
+.pptx-presentation__controls {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.pptx-presentation:hover .pptx-presentation__controls,
+.pptx-presentation.interactive .pptx-presentation__controls {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pptx-presentation__btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.15s;
+}
+
+.pptx-presentation__btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.pptx-presentation__progress {
+    width: 120px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pptx-presentation__progress-bar {
+    height: 100%;
+    background: var(--accent-color, #8b7355);
+    transition: width 0.2s;
+}
+
+/* ==================== 加载状态 ==================== */
+.pptx-viewer__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--text-secondary, #666);
+}
+
+.pptx-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-color, #e0dcd5);
+    border-top-color: var(--accent-color, #8b7355);
+    border-radius: 50%;
+    animation: pptx-spin 0.8s linear infinite;
+}
+
+@keyframes pptx-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== 错误状态 ==================== */
+.pptx-viewer__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--text-error, #c0392b);
+}
+
+.pptx-viewer__error-icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* ==================== 空状态 ==================== */
+.pptx-viewer__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary, #999);
+    font-size: 14px;
+}

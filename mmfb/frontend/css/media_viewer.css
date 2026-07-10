@@ -1,0 +1,342 @@
+/* MMFB MediaViewer - 视频/音频播放器样式 */
+
+.mmfb-media-viewer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    user-select: none;
+}
+
+.mmfb-media-stage {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.mmfb-media-stage:fullscreen {
+    background: #000;
+}
+
+/* 视频元素 */
+.mmfb-media-video {
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+/* 音频元素 (隐藏，用自定义 UI) */
+.mmfb-media-audio {
+    display: none;
+}
+
+/* 音频模式中央图标 */
+.mmfb-audio-icon {
+    text-align: center;
+    color: var(--color-text-primary, #333);
+}
+
+.mmfb-audio-icon__symbol {
+    font-size: 64px;
+    color: var(--color-accent, #6366f1);
+    margin-bottom: 16px;
+    animation: mmfb-pulse 2s ease-in-out infinite;
+}
+
+@keyframes mmfb-pulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+.mmfb-audio-icon__name {
+    font-size: 16px;
+    color: var(--color-text-secondary, #666);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 控制栏 */
+.mmfb-media-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 40px 16px 12px;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+    z-index: 10;
+}
+
+.mmfb-media-controls.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 进度条 */
+.mmfb-progress-bar {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: height 0.15s ease;
+}
+
+.mmfb-progress-bar:hover {
+    height: 6px;
+}
+
+.mmfb-progress-buffer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    width: 0%;
+}
+
+.mmfb-progress-current {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--color-accent, #6366f1);
+    border-radius: 2px;
+    width: 0%;
+}
+
+.mmfb-progress-thumb {
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.mmfb-progress-bar:hover .mmfb-progress-thumb {
+    opacity: 1;
+}
+
+/* 控制按钮行 */
+.mmfb-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.mmfb-controls-left,
+.mmfb-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 按钮 */
+.mmfb-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    line-height: 1;
+}
+
+.mmfb-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.mmfb-btn-play {
+    font-size: 18px;
+}
+
+.mmfb-btn-skip {
+    font-size: 11px;
+    letter-spacing: -1px;
+}
+
+/* 时间显示 */
+.mmfb-time {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    margin-left: 8px;
+    white-space: nowrap;
+}
+
+/* 音量组 */
+.mmfb-volume-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.mmfb-volume-slider {
+    width: 70px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+}
+
+.mmfb-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.mmfb-volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* 速度选择 */
+.mmfb-speed-select {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+}
+
+.mmfb-speed-select option {
+    background: #2a2a2a;
+    color: #fff;
+}
+
+/* 字幕弹窗 */
+.mmfb-subtitle-popup {
+    position: absolute;
+    bottom: 60px;
+    right: 16px;
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 180px;
+    max-height: 240px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.mmfb-subtitle-popup.visible {
+    display: block;
+}
+
+.mmfb-subtitle-title {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    padding: 4px 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mmfb-subtitle-item {
+    color: #fff;
+    font-size: 13px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+.mmfb-subtitle-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.mmfb-subtitle-load {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 4px;
+    padding-top: 8px;
+    color: var(--color-accent, #6366f1);
+}
+
+/* 缓冲指示 */
+.mmfb-media-stage.buffering::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: mmfb-spin 0.8s linear infinite;
+}
+
+@keyframes mmfb-spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 错误提示 */
+.mmfb-media-error {
+    text-align: center;
+    color: #fff;
+    padding: 40px;
+}
+
+.mmfb-media-error__icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.mmfb-media-error__hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 8px;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .mmfb-controls-right .mmfb-speed-select {
+        display: none;
+    }
+    .mmfb-volume-slider {
+        width: 50px;
+    }
+}

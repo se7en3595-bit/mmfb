@@ -1,0 +1,123 @@
+/* MMFB HTML Viewer 样式 */
+
+.html-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.html-viewer__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.html-viewer__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.html-viewer__status {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    min-width: 50px;
+    text-align: right;
+}
+
+.html-viewer__save-btn {
+    padding: 4px 12px;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-primary);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.html-viewer__save-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--color-text-muted);
+}
+
+.html-viewer__body {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.html-viewer__body--preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.html-viewer__body--edit {
+    display: flex;
+}
+
+/* Sandboxed iframe */
+.html-viewer__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #fff;
+}
+
+/* 编辑模式：左右分栏 */
+.html-editor {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.html-editor__input {
+    flex: 1;
+    border: none;
+    border-right: 1px solid var(--color-border);
+    padding: 16px;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    background: var(--color-surface);
+    color: var(--color-text);
+    tab-size: 2;
+}
+
+.html-editor__preview {
+    flex: 1;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* 错误提示 */
+.html-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+}
+
+.html-error__icon {
+    font-size: 48px;
+    color: var(--color-warning, #e6a700);
+}
+
+.html-error__msg {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-align: center;
+    max-width: 80%;
+    word-break: break-all;
+}

@@ -1,0 +1,72 @@
+# pre-commit 配置
+# 自动代码质量检查
+
+repos:
+  # 基础检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-symlinks
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+
+  # Python 代码格式化
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        language_version: python3.9
+        args: [--line-length=88]
+
+  # 导入排序
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+
+  # 代码检查
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=88, --extend-ignore=E203]
+        additional_dependencies:
+          - flake8-bugbear==23.3.23
+          - flake8-comprehensions==3.14.0
+          - flake8-simplify==0.19.3
+
+  # 安全扫描
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-c, .bandit.yml]
+        files: ^mmfb/
+
+  # 类型检查（可选）
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-PySide6
+          - types-requests
+        exclude: ^tests/
+
+  # 自动更新依赖（开发时）
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v2.4.0
+    hooks:
+      - id: conventional-pre-commit
+        args: [--autofix, --scope, --strict]

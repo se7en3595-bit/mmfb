@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMFB Windows - 万能阅览器</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/title_bar.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/pdf_viewer.css">
+    <link rel="stylesheet" href="css/md_viewer.css">
+    <link rel="stylesheet" href="css/image_viewer.css">
+    <link rel="stylesheet" href="css/svg_viewer.css">
+    <link rel="stylesheet" href="css/media_viewer.css">
+    <link rel="stylesheet" href="css/html_viewer.css">
+    <link rel="stylesheet" href="css/code_viewer.css">
+    <link rel="stylesheet" href="css/text_viewer.css">
+    <link rel="stylesheet" href="css/csv_viewer.css">
+    <link rel="stylesheet" href="css/docx_viewer.css">
+    <link rel="stylesheet" href="css/xlsx_viewer.css">
+    <link rel="stylesheet" href="css/archive_viewer.css">
+    <link rel="stylesheet" href="css/model3d_viewer.css">
+    <link rel="stylesheet" href="css/conversion_viewer.css">
+    <link rel="stylesheet" href="css/command_palette.css">
+    <link rel="stylesheet" href="css/history_viewer.css">
+    <link rel="stylesheet" href="css/file_association.css">
+    <link rel="stylesheet" href="css/update_dialog.css">
+    <link rel="stylesheet" href="css/xmind_viewer.css">
+    <link rel="stylesheet" href="css/texture_viewer.css">
+    <link rel="stylesheet" href="css/epub_viewer.css">
+    <link rel="stylesheet" href="css/pptx_viewer.css">
+    <link rel="stylesheet" href="css/psd_viewer.css">
+</head>
+<body data-theme="warm">
+    <!-- 应用根容器（layout.js 会将 router-view 包裹进三栏布局） -->
+    <div id="app">
+        <main id="router-view"></main>
+    </div>
+
+    <!-- three.js (用于 Model3D Viewer) -->
+    <script src="libs/three.min.js"></script>
+
+    <!-- PDF.js UMD (用于 PDF 渲染，file:// 下无 CORS 问题) -->
+    <script src="libs/pdfs/pdf.min.js"></script>
+    <!-- PDF.js ESM fallback (UMD 失败时由 pdfjs-global.js 注入 pdfjsLib) -->
+    <script src="libs/pdfs/pdfjs-global.js"></script>
+
+    <!-- QWebChannel: Python ↔ JS 通信桥（PySide6 内嵌 qwebchannel.js） -->
+    <script src="qwebchannel.js"></script>
+
+    <!-- 核心模块（顺序：工具 -> 主题 -> 布局 -> 路由 -> 页面 -> 应用入口） -->
+    <script src="js/bridge.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/theme_selector.js"></script>
+    <script src="js/window_bridge.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/command_palette.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/pdf_viewer.js"></script>
+    <script src="js/md_viewer.js"></script>
+    <script src="js/image_viewer.js"></script>
+    <script src="js/svg_viewer.js"></script>
+    <script src="js/media_viewer.js"></script>
+    <script src="js/html_viewer.js"></script>
+    <script src="js/code_viewer.js"></script>
+    <script src="js/text_viewer.js"></script>
+    <script src="js/csv_viewer.js"></script>
+    <script src="js/docx_viewer.js"></script>
+    <script src="js/xlsx_viewer.js"></script>
+    <script src="js/archive_viewer.js"></script>
+    <script src="js/model3d_viewer.js"></script>
+    <script src="js/conversion_viewer.js"></script>
+    <script src="js/history_viewer.js"></script>
+    <script src="js/file_association.js"></script>
+    <script src="js/update_dialog.js"></script>
+    <script src="js/xmind_viewer.js"></script>
+    <script src="js/texture_viewer.js"></script>
+    <script src="js/epub_viewer.js"></script>
+    <script src="js/pptx_viewer.js"></script>
+    <script src="js/psd_viewer.js"></script>
+    <script src="js/navigator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

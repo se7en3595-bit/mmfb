@@ -1,0 +1,21 @@
+/* EpubViewer 样式 */
+
+.epub-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-content, #fdfbf7);
+}
+
+.epub-viewer__container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.epub-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+}

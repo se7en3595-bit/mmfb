@@ -1,0 +1,79 @@
+/* 标题栏样式 */
+.title-bar {
+    height: 36px;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    -webkit-app-region: drag;
+    app-region: drag;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.title-bar__title {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.title-bar__buttons {
+    display: flex;
+    gap: 8px;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+}
+
+.title-bar__btn {
+    width: 16px;
+    height: 16px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--transition-fast);
+    font-size: 10px;
+    line-height: 1;
+    background: transparent;
+    color: var(--color-text-muted);
+}
+
+.title-bar__btn:hover {
+    background: var(--color-bg-hover);
+}
+
+.title-bar__btn:active {
+    background: var(--color-bg-active);
+}
+
+/* macOS 风格的彩色按钮（浅色状态） */
+.title-bar--traffic-lights .title-bar__btn--close {
+    background: #FF5F57;
+    color: transparent;
+}
+
+.title-bar--traffic-lights .title-bar__btn--minimize {
+    background: #FEBC2E;
+    color: transparent;
+}
+
+.title-bar--traffic-lights .title-bar__btn--maximize {
+    background: #28C840;
+    color: transparent;
+}
+
+.title-bar--traffic-lights .title-bar__btn:hover {
+    filter: brightness(0.9);
+}

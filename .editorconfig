@@ -1,0 +1,54 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# 顶层配置文件
+root = true
+
+[*]
+# 缩进风格：空格
+indent_style = space
+# 缩进大小：4 个空格
+indent_size = 4
+# 换行符：LF（Git 友好）
+end_of_line = lf
+# 字符集：UTF-8
+charset = utf-8
+# 去除行尾空格
+trim_trailing_whitespace = true
+# 文件末尾插入换行符
+insert_final_newline = true
+
+# Python 特定设置
+[*.py]
+# 最大行长度 88（与 Black 一致）
+max_line_length = 88
+# 避免使用 """ 作为多行注释（优先用 #）
+disable_auto_detect_indentation = false
+
+# 测试文件可以更宽松
+[test_*.py]
+max_line_length = 100
+
+# 配置文件
+[*.{json,yaml,yml,toml,cfg,ini}]
+indent_size = 2
+max_line_length = 120
+
+# HTML/CSS/JS
+[*.{html,css,js,jsx,ts,tsx}]
+indent_size = 2
+max_line_length = 120
+
+# Shell 脚本
+[*.sh]
+indent_style = tab
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 0  # 不限制
+
+# 排除特定文件
+[*.min.{js,css}]
+# 压缩文件不格式化
+end_of_line = preserve
+insert_final_newline = false

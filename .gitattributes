@@ -1,0 +1,29 @@
+# Git 属性配置
+# 确保跨平台一致性
+
+# 文本文件统一使用 LF 换行符（即使在 Windows 上）
+* text=auto eol=lf
+
+# 二进制文件明确标记
+*.png binary
+*.jpg binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.pyc binary
+*.pyo binary
+
+# Python 优化字节码缓存
+*.pyc filter=git-lfs/skip-worktree
+
+# GitHub 有限制，大文件应使用 Git LFS（本项目无需）
+# 但如果 frontend/libs/ 中有大文件（>100MB），考虑 LFS
+# libs/ filter=git-lfs diff=git-lfs merge=git-lfs
+
+# 设置 diff 算法（对某些文件优化）
+*.min.js diff=javascript
+*.json linguist-language=JSON
+
+# 标记为vendored（第三方库不参与代码统计）
+frontend/libs/* linguist-vendored
+frontend/node_modules/* linguist-vendored

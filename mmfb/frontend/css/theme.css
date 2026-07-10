@@ -1,0 +1,231 @@
+/* Omai 主题样式 - Light / Dark / Warm
+ *
+ * 主题切换通过 body[data-theme] 属性选择器实现，
+ * 所有 CSS 变量定义为变量链：body[data-theme="x"] -> 覆盖 :root 默认值
+ */
+
+/* ========== Light 主题 ========== */
+body[data-theme="light"] {
+    --color-bg: #FFFFFF;
+    --color-bg-elevated: #F7F7F8;
+    --color-bg-hover: #EFEFF1;
+    --color-bg-active: #E4E4E8;
+    --color-text-primary: #1A1A1E;
+    --color-text-secondary: #5C5C64;
+    --color-text-muted: #8E8E96;
+    --color-border: #E0E0E5;
+    --color-accent: #C47A3D;
+    --color-accent-hover: #A86530;
+    --color-error: #D83A3A;
+    --color-success: #2E8B57;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== Dark 主题 ========== */
+body[data-theme="dark"] {
+    --color-bg: #1E1E22;
+    --color-bg-elevated: #26262C;
+    --color-bg-hover: #2F2F36;
+    --color-bg-active: #38383F;
+    --color-text-primary: #E8E8EC;
+    --color-text-secondary: #A8A8B0;
+    --color-text-muted: #72727A;
+    --color-border: #35353D;
+    --color-accent: #D6894A;
+    --color-accent-hover: #E4995A;
+    --color-error: #E86565;
+    --color-success: #5CB87A;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ========== Warm 主题（暖纸色，默认）========== */
+body[data-theme="warm"] {
+    --color-bg: #C7EDCC;
+    --color-bg-elevated: #D9F0DC;
+    --color-bg-hover: #B3E4BA;
+    --color-bg-active: #9DD8A6;
+    --color-text-primary: #1E3A24;
+    --color-text-secondary: #4A6B50;
+    --color-text-muted: #7A9980;
+    --color-border: #8BA888;
+    --color-accent: #C47A3D;
+    --color-accent-hover: #A86530;
+    --color-error: #C44040;
+    --color-success: #4A8C5C;
+
+    --shadow-sm: 0 1px 2px rgba(30, 80, 40, 0.06);
+    --shadow-md: 0 2px 8px rgba(30, 80, 40, 0.08);
+    --shadow-lg: 0 4px 16px rgba(30, 80, 40, 0.12);
+}
+
+/* ========== 主题切换过渡动画 ==========
+ * 只在颜色属性变化时过渡，避免 layout 属性也触发 */
+body.theme-transition,
+body.theme-transition *,
+body.theme-transition *::before,
+body.theme-transition *::after {
+    transition: background-color 200ms ease,
+                color 200ms ease,
+                border-color 200ms ease,
+                box-shadow 200ms ease !important;
+}
+
+/* ========== 主题通用组件 ========== */
+
+/* 卡片样式 */
+.card {
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-xl);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* 按钮样式 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--color-accent-hover);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+/* 空状态页面样式 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--color-text-muted);
+    gap: var(--spacing-lg);
+}
+
+.empty-state .icon {
+    font-size: 48px;
+    opacity: 0.4;
+}
+
+.empty-state .title {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.empty-state .subtitle {
+    font-size: var(--font-size-sm);
+}
+
+/* 主题选择器（设置页） */
+.theme-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.theme-selector__option {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-elevated);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+    text-align: center;
+    user-select: none;
+}
+
+.theme-selector__option:hover {
+    border-color: var(--color-accent);
+}
+
+.theme-selector__option--active {
+    border-color: var(--color-accent);
+    background: var(--color-bg-hover);
+}
+
+.theme-selector__swatch {
+    width: 100%;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+}
+
+.theme-selector__name {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+/* 各色板颜色（预览方块） */
+.theme-selector__swatch--light {
+    background: linear-gradient(135deg, #FFFFFF 0%, #F0F0F2 100%);
+}
+
+.theme-selector__swatch--dark {
+    background: linear-gradient(135deg, #1E1E22 0%, #2F2F36 100%);
+}
+
+.theme-selector__swatch--warm {
+    background: linear-gradient(135deg, #C7EDCC 0%, #9DD8A6 100%);
+}
+
+/* 工具提示 */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-text-primary);
+    color: var(--color-bg);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}

@@ -1,0 +1,186 @@
+/* Conversion Viewer Styles */
+
+.conv-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+    background: var(--color-bg, #faf9f6);
+    overflow-y: auto;
+}
+
+.conv-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.conv-header h2 {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--color-text, #333);
+    margin: 0;
+}
+
+.conv-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 640px;
+    flex: 0 0 auto;
+}
+
+.conv-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.conv-row label {
+    font-size: 0.85em;
+    font-weight: 500;
+    color: var(--color-text-muted, #666);
+}
+
+.conv-row select,
+.conv-row input {
+    padding: 10px 14px;
+    font-size: 0.95em;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 6px;
+    background: var(--color-input-bg, #fff);
+    color: var(--color-text, #333);
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.conv-row select:focus,
+.conv-row input:focus {
+    outline: none;
+    border-color: var(--color-accent, #e07b5a);
+    box-shadow: 0 0 0 3px rgba(224, 123, 90, 0.1);
+}
+
+.conv-file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--color-card, rgba(255, 255, 255, 0.7));
+    border: 1px solid var(--color-border, #eee);
+    border-radius: 8px;
+    font-size: 0.9em;
+    color: var(--color-text-muted, #666);
+}
+
+.conv-file-info .icon {
+    font-size: 1.2em;
+}
+
+.conv-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.conv-btn {
+    padding: 10px 24px;
+    font-size: 0.95em;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.conv-btn-primary {
+    background: var(--color-accent, #e07b5a);
+    color: white;
+}
+
+.conv-btn-primary:hover {
+    background: var(--color-accent-hover, #c96a4d);
+    transform: translateY(-1px);
+}
+
+.conv-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.conv-btn-secondary {
+    background: transparent;
+    color: var(--color-text, #333);
+    border: 1px solid var(--color-border, #ddd);
+}
+
+.conv-btn-secondary:hover {
+    background: var(--color-hover, rgba(0,0,0,0.04));
+}
+
+.conv-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    display: none;
+}
+
+.conv-status.show {
+    display: block;
+}
+
+.conv-status.success {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    color: #27ae60;
+}
+
+.conv-status.error {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    color: #c0392b;
+}
+
+.conv-status.loading {
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    color: #2980b9;
+}
+
+.conv-supporters {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--color-card, rgba(255, 255, 255, 0.5));
+    border: 1px solid var(--color-border, #eee);
+    border-radius: 8px;
+    font-size: 0.85em;
+    color: var(--color-text-muted, #777);
+}
+
+.conv-supporters code {
+    background: rgba(0,0,0,0.05);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.95em;
+}
+
+.conv-supporters .chain-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.conv-supporters .chain-item {
+    background: var(--color-bg, #faf9f6);
+    border: 1px solid var(--color-border, #ddd);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+}

@@ -1,0 +1,398 @@
+/* 图像查看器样式 */
+
+.image-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #1E1E1E;
+    position: relative;
+}
+
+/* 工具栏 */
+.image-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 var(--spacing-md);
+    background: #2D2D2D;
+    color: #E0E0E0;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-app-region: no-drag;
+}
+
+.image-toolbar__left,
+.image-toolbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.image-toolbar__title {
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.image-toolbar__meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+.image-toolbar__btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #C0C0C0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.image-toolbar__btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+}
+
+.image-toolbar__zoom {
+    min-width: 50px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 渲染容器 */
+.image-canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    cursor: grab;
+}
+
+.image-canvas-container:active {
+    cursor: grabbing;
+}
+
+/* 画布 */
+.image-canvas {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+    max-width: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* 像素图像放大时不模糊 */
+.image-canvas.pixelated {
+    image-rendering: pixelated;
+}
+
+/* 加载状态 */
+.image-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #C0C0C0;
+    font-size: var(--font-size-sm);
+}
+
+.image-loading__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: image-spin 0.8s linear infinite;
+}
+
+@keyframes image-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 错误状态 */
+.image-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #FF8080;
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.image-error__icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* 信息面板 */
+.image-info-panel {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: var(--spacing-md);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    z-index: 100;
+    min-width: 260px;
+    max-width: 360px;
+    max-height: 70vh;
+    overflow-y: auto;
+    font-size: var(--font-size-xs);
+    color: #E0E0E0;
+}
+
+.image-info-panel.visible {
+    display: block;
+}
+
+.image-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.image-info-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: top;
+    word-break: break-all;
+}
+
+.image-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.image-info-key {
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    width: 80px;
+    font-weight: 500;
+}
+
+.image-info-val {
+    color: #FFFFFF;
+}
+
+.image-info-separator td {
+    padding: 8px 8px 4px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ========== 编辑模式 ========== */
+
+/* 编辑按钮激活态 */
+.image-toolbar__btn.active {
+    background: rgba(196, 122, 61, 0.3);
+    color: #FFFFFF;
+}
+
+/* 裁剪编辑辅助工具栏 */
+.image-edit-bar {
+    display: none;
+    align-items: center;
+    gap: var(--spacing-sm);
+    height: 32px;
+    padding: 0 var(--spacing-md);
+    background: #333333;
+    color: #E0E0E0;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.image-edit-bar__label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.image-edit-bar__coords {
+    color: #FFFFFF;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    min-width: 120px;
+}
+
+.image-edit-bar__btn {
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #E0E0E0;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.image-edit-bar__btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.image-edit-bar__btn--primary {
+    background: rgba(196, 122, 61, 0.4);
+    border-color: rgba(196, 122, 61, 0.6);
+    color: #FFFFFF;
+}
+
+.image-edit-bar__btn--primary:hover {
+    background: rgba(196, 122, 61, 0.6);
+}
+
+/* 裁剪覆盖层 */
+.image-crop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.image-crop-hint {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #FFFFFF;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    pointer-events: none;
+}
+
+.image-crop-box {
+    position: absolute;
+    border: 2px dashed #C47A3D;
+    background: rgba(196, 122, 61, 0.15);
+    cursor: crosshair;
+    pointer-events: none;
+}
+
+/* 滤镜选择弹窗 */
+.image-filter-dialog {
+    position: absolute;
+    top: 80px;
+    right: var(--spacing-md);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-sm);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 140px;
+}
+
+.image-filter-dialog__btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #E0E0E0;
+    cursor: pointer;
+    text-align: left;
+    font-size: var(--font-size-xs);
+    transition: background var(--transition-fast);
+}
+
+.image-filter-dialog__btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.image-filter-dialog__btn--cancel {
+    color: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2px;
+    padding-top: var(--spacing-sm);
+}
+
+/* 亮度/对比度调整弹窗 */
+.image-adjust-dialog {
+    position: absolute;
+    top: 80px;
+    right: var(--spacing-md);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    z-index: 200;
+    min-width: 240px;
+}
+
+.image-adjust-dialog__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.image-adjust-dialog__row label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: var(--font-size-xs);
+    min-width: 40px;
+}
+
+.image-adjust-dialog__row input[type="range"] {
+    flex: 1;
+    accent-color: #C47A3D;
+}
+
+.image-adjust-dialog__val {
+    color: #FFFFFF;
+    font-size: var(--font-size-xs);
+    font-family: var(--font-mono);
+    min-width: 32px;
+    text-align: right;
+}
+
+.image-adjust-dialog__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: flex-end;
+    margin-top: var(--spacing-md);
+}
+
+/* 编辑加载状态 */
+.image-edit-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    color: #C0C0C0;
+    font-size: var(--font-size-sm);
+    z-index: 300;
+}

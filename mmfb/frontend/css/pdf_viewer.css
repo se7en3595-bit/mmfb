@@ -1,0 +1,223 @@
+/* PDF 查看器样式 */
+
+.pdf-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #525659; /* Chromium PDF toolbar 背景色 */
+    position: relative;
+}
+
+/* PDF 工具栏 */
+.pdf-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 var(--spacing-md);
+    background: #323639;
+    color: #E0E0E0;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-app-region: no-drag;
+}
+
+.pdf-toolbar__left,
+.pdf-toolbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.pdf-toolbar__title {
+    font-weight: 500;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pdf-toolbar__btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #C0C0C0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.pdf-toolbar__btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+}
+
+.pdf-toolbar__btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.pdf-toolbar__btn:disabled:hover {
+    background: transparent;
+    color: #C0C0C0;
+}
+
+.pdf-toolbar__page-info {
+    min-width: 80px;
+    text-align: center;
+}
+
+.pdf-toolbar__zoom {
+    min-width: 50px;
+    text-align: center;
+}
+
+/* PDF 渲染容器 */
+.pdf-canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+}
+
+/* pdf.js 画布 */
+.pdf-canvas-container canvas {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    background: #FFFFFF;
+    max-width: 100%;
+}
+
+/* 文本层（搜索高亮） */
+.pdf-text-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.2;
+    line-height: 1.0;
+}
+
+.pdf-text-layer > span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+
+.pdf-text-layer .highlight {
+    background-color: rgba(255, 255, 0, 0.4);
+    border-radius: 2px;
+}
+
+.pdf-text-layer .highlight.selected {
+    background-color: rgba(255, 165, 0, 0.6);
+}
+
+/* 加载状态 */
+.pdf-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #C0C0C0;
+    font-size: var(--font-size-sm);
+}
+
+.pdf-loading__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: pdf-spin 0.8s linear infinite;
+}
+
+@keyframes pdf-spin {
+    to { transform: rotate(360deg); }
+}
+
+.pdf-loading__progress {
+    font-size: var(--font-size-xs);
+    opacity: 0.7;
+}
+
+/* 错误状态 */
+.pdf-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #FF8080;
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.pdf-error__icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* 搜索框 */
+.pdf-search-box {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: var(--spacing-md);
+    background: #323639;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-sm);
+    z-index: 100;
+    min-width: 240px;
+}
+
+.pdf-search-box.visible {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.pdf-search-box input {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.3);
+    color: #FFFFFF;
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    outline: none;
+}
+
+.pdf-search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.pdf-search-box input:focus {
+    border-color: var(--color-accent);
+}
+
+.pdf-search-count {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+}

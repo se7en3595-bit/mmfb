@@ -1,0 +1,31 @@
+# Bandit 安全扫描配置
+
+# 要排除的测试（根据项目需求调整）
+exclude_dirs:
+  - ^build/
+  - ^dist/
+  - ^venv/
+  - ^\.venv/
+  - ^tests/
+  - ^docs/
+
+# 要跳过的检查（如果某些规则产生误报）
+skips:
+  - B101  # assert 语句（测试文件常用）
+  - B103  # set_bad_file_permissions（Windows 权限不同）
+  - B104  # 硬编码密码（我们不用）
+  - B105  # 硬编码密码（我们不用）
+  - B106  # 硬编码密码（我们不用）
+  - B107  # 硬编码密码（我们不用）
+  - B110  # 尝试使用 eval（前端 JS 可能用到）
+  - B112  # try_without_except（部分代码可能有）
+
+# 严格程度：medium（默认）或 high
+# high 会包含更多测试，可能误报更多
+profile: medium
+
+# 输出格式
+output_format: txt
+
+# 详细输出
+verbose: True

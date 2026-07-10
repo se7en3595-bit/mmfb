@@ -1,0 +1,279 @@
+/* MMFB CSV Viewer 样式 */
+
+.csv-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-bg);
+    font-family: var(--font-family);
+}
+
+/* ========== 工具栏 ========== */
+.csv-viewer__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    flex-shrink: 0;
+    gap: var(--spacing-md);
+}
+
+.csv-viewer__toolbar-left,
+.csv-viewer__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.csv-viewer__filter {
+    width: 240px;
+    height: 28px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.csv-viewer__filter:focus {
+    border-color: var(--color-accent);
+}
+
+.csv-viewer__filter::placeholder {
+    color: var(--color-text-muted);
+}
+
+.csv-viewer__page-size {
+    height: 28px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.csv-viewer__export-btn {
+    height: 28px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.csv-viewer__export-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.csv-viewer__export-btn:active {
+    background: var(--color-bg-active);
+}
+
+.csv-viewer__status {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.csv-viewer__status.is-error {
+    color: var(--color-error);
+}
+
+.csv-viewer__truncated-tip {
+    width: 100%;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 var(--spacing-md);
+    margin-top: var(--spacing-xs);
+    background: #FFF3E0;
+    color: #C47A3D;
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    border: 1px solid #FFCC80;
+}
+
+/* ========== 表格区域 ========== */
+.csv-viewer__body {
+    flex: 1;
+    overflow: auto;
+}
+
+.csv-table-wrap {
+    padding: 0;
+    height: 100%;
+}
+
+.csv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+    table-layout: auto;
+}
+
+.csv-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.csv-table__header-cell {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    transition: background var(--transition-fast);
+}
+
+.csv-table__header-cell:hover {
+    background: var(--color-bg-active);
+}
+
+.csv-table__header-cell.is-sort-asc,
+.csv-table__header-cell.is-sort-desc {
+    background: var(--color-bg-active);
+    color: var(--color-accent);
+}
+
+.csv-table__sort-indicator {
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+.csv-table__cell {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.csv-table__cell.is-number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.csv-table__cell.is-null {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.csv-table tbody tr:hover .csv-table__cell {
+    background: var(--color-bg-hover);
+}
+
+/* ========== 底栏 ========== */
+.csv-viewer__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 32px;
+    padding: 0 var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+    flex-shrink: 0;
+}
+
+.csv-viewer__footer-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.csv-viewer__pager {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.csv-viewer__pager-btn {
+    height: 24px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.csv-viewer__pager-btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.csv-viewer__pager-btn:disabled {
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.csv-viewer__pager-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    min-width: 140px;
+    text-align: center;
+}
+
+/* ========== 空/错误状态 ========== */
+.csv-viewer__empty,
+.csv-viewer__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: var(--color-text-muted);
+}
+
+.csv-viewer__empty-icon,
+.csv-viewer__error-icon {
+    font-size: 36px;
+    font-style: normal;
+}
+
+.csv-viewer__empty-title,
+.csv-viewer__error-title {
+    font-size: var(--font-size-md);
+}
+
+.csv-viewer__error-msg {
+    font-size: var(--font-size-sm);
+    max-width: 480px;
+    text-align: center;
+    word-break: break-word;
+    color: var(--color-error);
+}

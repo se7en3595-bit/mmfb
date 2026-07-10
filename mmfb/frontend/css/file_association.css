@@ -1,0 +1,145 @@
+/* MMFB File Association 文件关联面板 */
+
+.file-assoc {
+    max-width: 560px;
+    padding: 20px 24px;
+    color: var(--mmfb-text, #333);
+}
+
+.file-assoc__header {
+    margin-bottom: 18px;
+}
+
+.file-assoc__header h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.file-assoc__subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: var(--mmfb-text-secondary, #888);
+}
+
+/* 状态区 */
+.file-assoc__status {
+    margin: 16px 0;
+}
+
+.file-assoc__progress {
+    background: var(--mmfb-bg-subtle, #f5f2ec);
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+.file-assoc__bar {
+    height: 6px;
+    background: var(--mmfb-bg-elevated, #e8e4dc);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.file-assoc__bar-fill {
+    height: 100%;
+    background: var(--mmfb-accent, #b5895a);
+    transition: width 0.3s ease;
+}
+
+.file-assoc__stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--mmfb-text-secondary, #888);
+}
+
+.file-assoc__detail {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.file-assoc__detail small {
+    font-size: 11px;
+    color: var(--mmfb-text-tertiary, #aaa);
+}
+
+.file-assoc__loading {
+    color: var(--mmfb-text-tertiary, #aaa);
+    font-size: 13px;
+    padding: 16px;
+}
+
+/* 按钮 */
+.file-assoc__actions {
+    margin: 18px 0;
+    display: flex;
+    gap: 8px;
+}
+
+.mmfb-btn {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid var(--mmfb-border, #d9d4cc);
+    border-radius: 6px;
+    background: var(--mmfb-bg-elevated, #f5f2ec);
+    font-size: 13px;
+    color: var(--mmfb-text, #333);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.mmfb-btn:hover {
+    background: var(--mmfb-bg-hover, #ebe7df);
+}
+
+.mmfb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mmfb-btn--primary {
+    background: var(--mmfb-accent, #b5895a);
+    color: #fff;
+    border-color: var(--mmfb-accent, #b5895a);
+}
+
+.mmfb-btn--primary:hover {
+    background: var(--mmfb-accent-hover, #a07850);
+}
+
+/* 结果反馈 */
+.file-assoc__result {
+    margin: 8px 0;
+    min-height: 20px;
+}
+
+.file-assoc__success {
+    font-size: 13px;
+    color: var(--mmfb-success, #4a8c5e);
+    padding: 8px 12px;
+    background: var(--mmfb-success-bg, #e8f5ec);
+    border-radius: 4px;
+}
+
+.file-assoc__error {
+    font-size: 13px;
+    color: var(--mmfb-error, #b33);
+    padding: 8px 12px;
+    background: var(--mmfb-error-bg, #fdeaea);
+    border-radius: 4px;
+}
+
+/* 底部提示 */
+.file-assoc__info {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mmfb-border-subtle, #ebe7df);
+}
+
+.file-assoc__info small {
+    font-size: 11px;
+    color: var(--mmfb-text-tertiary, #aaa);
+}

@@ -1,0 +1,385 @@
+/* 纹理查看器样式 (DDS / TGA / EXR / HDR) */
+
+.texture-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #1E1E1E;
+    position: relative;
+}
+
+/* ========== 工具栏 ========== */
+
+.texture-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 var(--spacing-md);
+    background: #2D2D2D;
+    color: #E0E0E0;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-app-region: no-drag;
+}
+
+.texture-toolbar__left,
+.texture-toolbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.texture-toolbar__title {
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.texture-toolbar__meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+}
+
+.texture-toolbar__btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #C0C0C0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.texture-toolbar__btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+}
+
+.texture-toolbar__btn.active {
+    background: rgba(196, 122, 61, 0.3);
+    color: #FFFFFF;
+}
+
+.texture-toolbar__zoom {
+    min-width: 50px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.texture-toolbar__sep {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 10px;
+}
+
+/* ========== 渲染容器 ========== */
+
+.texture-canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    cursor: grab;
+}
+
+.texture-canvas-container:active {
+    cursor: grabbing;
+}
+
+.texture-canvas {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+    max-width: none;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.texture-canvas.pixelated {
+    image-rendering: pixelated;
+}
+
+/* ========== 加载 / 错误 ========== */
+
+.texture-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #C0C0C0;
+    font-size: var(--font-size-sm);
+}
+
+.texture-loading__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: texture-spin 0.8s linear infinite;
+}
+
+@keyframes texture-spin {
+    to { transform: rotate(360deg); }
+}
+
+.texture-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #FF8080;
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.texture-error__icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* ========== 元信息面板 ========== */
+
+.texture-info-panel {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: var(--spacing-md);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    z-index: 100;
+    min-width: 280px;
+    max-width: 380px;
+    max-height: 70vh;
+    overflow-y: auto;
+    font-size: var(--font-size-xs);
+    color: #E0E0E0;
+}
+
+.texture-info-panel.visible {
+    display: block;
+}
+
+.texture-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.texture-info-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: top;
+    word-break: break-all;
+}
+
+.texture-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.texture-info-key {
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    width: 90px;
+    font-weight: 500;
+}
+
+.texture-info-val {
+    color: #FFFFFF;
+}
+
+.texture-info-separator td {
+    padding: 8px 8px 4px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* ========== 纹理徽章 ========== */
+
+.texture-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+}
+
+.texture-badge--normal {
+    background: rgba(100, 180, 255, 0.25);
+    color: #80C0FF;
+    border: 1px solid rgba(100, 180, 255, 0.4);
+}
+
+.texture-badge--hdr {
+    background: rgba(255, 180, 60, 0.25);
+    color: #FFB040;
+    border: 1px solid rgba(255, 180, 60, 0.4);
+}
+
+.texture-badge--cubemap {
+    background: rgba(180, 100, 255, 0.25);
+    color: #C080FF;
+    border: 1px solid rgba(180, 100, 255, 0.4);
+}
+
+/* ========== 缩略图选择面板 (Mipmap) ========== */
+
+.texture-mip-panel {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-sm);
+    z-index: 100;
+    min-width: 300px;
+}
+
+.texture-mip-panel.visible {
+    display: block;
+}
+
+.texture-mip-panel__title {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+}
+
+.texture-mip-panel__thumbs {
+    display: flex;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    padding: 4px 0;
+}
+
+.texture-mip-panel__thumb {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+    position: relative;
+}
+
+.texture-mip-panel__thumb:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.texture-mip-panel__thumb.active {
+    border-color: #C47A3D;
+}
+
+.texture-mip-panel__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: repeating-conic-gradient(#2a2a2a 0% 25%, #333 0% 50%) 50% / 10px 10px;
+}
+
+.texture-mip-panel__thumb-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #FFFFFF;
+    font-size: 9px;
+    text-align: center;
+    padding: 1px 0;
+    font-family: var(--font-mono);
+}
+
+/* ========== 法线贴图可视化 ========== */
+
+.texture-nv-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.texture-nv-overlay.visible {
+    display: block;
+}
+
+.texture-nv-axis-indicator {
+    position: absolute;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 40px;
+    height: 40px;
+}
+
+.texture-nv-axis-indicator__x {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 16px;
+    height: 2px;
+    background: #FF4444;
+}
+
+.texture-nv-axis-indicator__y {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    height: 16px;
+    background: #44FF44;
+}
+
+.texture-nv-axis-indicator__z {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4444FF;
+    opacity: 0.5;
+}
+
+/* ========== 滚动条 ========== */
+
+.texture-mip-panel__thumbs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.texture-mip-panel__thumbs::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+}
+
+.texture-mip-panel__thumbs::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}

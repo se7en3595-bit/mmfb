@@ -1,0 +1,20 @@
+[tool.pytest.ini_options]
+# pytest 配置
+testpaths = ["mmfb/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+# 显示详细输出
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+]
+
+[tool.pypackage]
+name = "mmfb"
+version = "0.6.0"

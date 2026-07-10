@@ -1,0 +1,372 @@
+/* SVG 矢量图查看器样式 */
+
+.svg-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: #1E1E1E;
+    position: relative;
+}
+
+/* 工具栏 */
+.svg-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 var(--spacing-md);
+    background: #2D2D2D;
+    color: #E0E0E0;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-app-region: no-drag;
+}
+
+.svg-toolbar__left,
+.svg-toolbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.svg-toolbar__title {
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.svg-toolbar__meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+}
+
+.svg-toolbar__btn {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #C0C0C0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    white-space: nowrap;
+}
+
+.svg-toolbar__btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+}
+
+.svg-toolbar__btn.active {
+    background: rgba(196, 122, 61, 0.3);
+    color: #FFFFFF;
+}
+
+.svg-toolbar__sep {
+    color: rgba(255, 255, 255, 0.2);
+    user-select: none;
+}
+
+.svg-toolbar__zoom {
+    min-width: 50px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 渲染容器 */
+.svg-canvas-container {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        linear-gradient(45deg, #2A2A2A 25%, transparent 25%),
+        linear-gradient(-45deg, #2A2A2A 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #2A2A2A 75%),
+        linear-gradient(-45deg, transparent 75%, #2A2A2A 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0;
+    background-color: #232323;
+}
+
+.svg-canvas-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.svg-canvas-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.svg-canvas-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.svg-canvas-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* SVG 图片渲染（缩放用 CSS transform） */
+.svg-image {
+    max-width: 100%;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    transform-origin: center center;
+    transition: transform 0.05s ease-out;
+}
+
+/* 暗色主题下保持 SVG 亮色背景的可见性 */
+.svg-image.light-bg {
+    background: #FFFFFF;
+}
+
+/* 编辑模式：双栏 */
+.svg-editor {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.svg-editor__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: var(--spacing-md);
+    background: #1E1E1E;
+    color: #E0E0E0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    tab-size: 2;
+}
+
+.svg-editor__input:focus {
+    background: #252525;
+}
+
+.svg-editor__preview {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background:
+        linear-gradient(45deg, #2A2A2A 25%, transparent 25%),
+        linear-gradient(-45deg, #2A2A2A 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #2A2A2A 75%),
+        linear-gradient(-45deg, transparent 75%, #2A2A2A 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, 10px 0;
+    background-color: #232323;
+    padding: 24px;
+}
+
+.svg-editor__preview img {
+    max-width: 100%;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* 源码查看模式 */
+.svg-source-pane {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: #1E1E1E;
+    padding: var(--spacing-lg);
+}
+
+.svg-source-pane pre {
+    margin: 0;
+    color: #E0E0E0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* 状态标签 */
+.svg-status {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    min-width: 30px;
+}
+
+/* 保存按钮 */
+.svg-viewer__save-btn {
+    padding: 4px 12px;
+    border: 1px solid rgba(196, 122, 61, 0.6);
+    border-radius: var(--radius-sm);
+    background: rgba(196, 122, 61, 0.2);
+    color: #FFFFFF;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.svg-viewer__save-btn:hover {
+    background: rgba(196, 122, 61, 0.4);
+}
+
+.svg-viewer__save-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 加载状态 */
+.svg-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #C0C0C0;
+    font-size: var(--font-size-sm);
+}
+
+.svg-loading__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: svg-spin 0.8s linear infinite;
+}
+
+@keyframes svg-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 错误状态 */
+.svg-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: #FF8080;
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.svg-error__icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+/* 导出弹窗 */
+.svg-export-dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2D2D2D;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-lg);
+    z-index: 200;
+    min-width: 300px;
+    color: #E0E0E0;
+}
+
+.svg-export-dialog__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+}
+
+.svg-export-dialog__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.svg-export-dialog__row label {
+    min-width: 50px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-size-xs);
+}
+
+.svg-export-dialog__row input[type="number"] {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    background: #1E1E1E;
+    color: #E0E0E0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    outline: none;
+}
+
+.svg-export-dialog__row input[type="number"]:focus {
+    border-color: rgba(196, 122, 61, 0.6);
+}
+
+.svg-export-dialog__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+.svg-export-dialog__btn {
+    padding: 5px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #E0E0E0;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.svg-export-dialog__btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.svg-export-dialog__btn--primary {
+    background: rgba(196, 122, 61, 0.3);
+    border-color: rgba(196, 122, 61, 0.6);
+    color: #FFFFFF;
+}
+
+.svg-export-dialog__btn--primary:hover {
+    background: rgba(196, 122, 61, 0.5);
+}
+
+/* 遮罩 */
+.svg-overlay-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+}
+
+.svg-viewer__footer-status {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    min-width: 60px;
+    text-align: right;
+}

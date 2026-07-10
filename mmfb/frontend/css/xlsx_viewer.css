@@ -1,0 +1,244 @@
+/* MMFB Xlsx Viewer 样式 */
+
+.xlsx-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-bg);
+    font-size: var(--font-size-sm);
+}
+
+/* ========== 工具栏 ========== */
+.xlsx-viewer__toolbar {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    gap: var(--spacing-sm);
+}
+
+.xlsx-viewer__toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+    overflow-x: auto;
+}
+
+.xlsx-viewer__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+/* ---------- Sheet 标签 ---------- */
+.xlsx-viewer__sheet-tabs {
+    display: flex;
+    gap: 2px;
+}
+
+.xlsx-viewer__sheet-tab {
+    padding: 4px 12px;
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.xlsx-viewer__sheet-tab:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+.xlsx-viewer__sheet-tab.is-active {
+    background: var(--color-bg);
+    color: var(--color-accent);
+    font-weight: 600;
+    border-color: var(--color-accent);
+}
+
+/* ---------- 操作按钮 ---------- */
+.xlsx-viewer__edit-btn,
+.xlsx-viewer__save-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.xlsx-viewer__edit-btn:hover,
+.xlsx-viewer__save-btn:hover:not(:disabled) {
+    background: var(--color-bg-hover);
+}
+
+.xlsx-viewer__edit-btn.is-active {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: var(--color-accent);
+}
+
+.xlsx-viewer__save-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.xlsx-viewer__save-btn:not(:disabled) {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: var(--color-accent);
+}
+
+/* ---------- 状态 ---------- */
+.xlsx-viewer__status {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.xlsx-viewer__status.is-error {
+    color: #e04040;
+    font-weight: 600;
+}
+
+/* ========== 表格区域 ========== */
+.xlsx-viewer__body {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.xlsx-table-wrap {
+    min-width: fit-content;
+}
+
+.xlsx-table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    font-size: var(--font-size-xs);
+}
+
+.xlsx-table th,
+.xlsx-table td {
+    border: 1px solid var(--color-border);
+    padding: 3px 8px;
+    min-width: 60px;
+    max-width: 240px;
+    height: 22px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.xlsx-table thead th {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.xlsx-table__col-header {
+    text-align: center;
+    min-width: 48px;
+}
+
+.xlsx-table__row-header,
+.xlsx-table__corner {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    text-align: center;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 40px;
+}
+
+.xlsx-table__corner {
+    z-index: 3;
+    top: 0;
+}
+
+.xlsx-table__cell {
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    cursor: default;
+    transition: background var(--transition-fast);
+}
+
+.xlsx-table__cell:hover {
+    background: var(--color-bg-hover);
+}
+
+.xlsx-table__cell.is-editing {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    background: var(--color-bg);
+    cursor: text;
+}
+
+.xlsx-table tbody th {
+    position: sticky;
+    left: 0;
+}
+
+.xlsx-table tbody tr:nth-child(even) td {
+    background: var(--color-bg-hover-light, rgba(0, 0, 0, 0.02));
+}
+
+.xlsx-table tbody tr:nth-child(even) td:hover {
+    background: var(--color-bg-hover);
+}
+
+/* ========== 底部状态栏 ========== */
+.xlsx-viewer__footer {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.xlsx-viewer__footer-info {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+/* ========== 空状态 ========== */
+.xlsx-viewer__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--spacing-md);
+    color: var(--color-text-muted);
+}
+
+.xlsx-viewer__empty-icon {
+    font-size: 32px;
+}
+
+.xlsx-viewer__empty-title {
+    font-size: var(--font-size-sm);
+}
