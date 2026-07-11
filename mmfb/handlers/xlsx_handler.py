@@ -194,8 +194,19 @@ class XlsxHandler(BaseHandler):
 
     @staticmethod
     def _extract_style(cell) -> Dict[str, Any]:
-        """提取单元格关键样式"""
+        """提取单元格关键样式
+
+        注意: openpyxl 在颜色为"自动"时返回 "00000000"（ARGB 全透明黑），
+        这不是有效颜色，需跳过，让前端回退到 CSS 默认文本色。
+        """
         style: Dict[str, Any] = {}
+
+        def _is_auto_color(raw) -> bool:
+            """判断是否为 openpyxl "自动"颜色标记"""
+            if not raw:
+                return True
+            s = str(raw).replace(":", "").replace("#", "").upper()
+            return s == "00000000" or s == "000000" or s == ""
 
         try:
             if cell.font:
@@ -204,10 +215,12 @@ class XlsxHandler(BaseHandler):
                 if cell.font.italic:
                     style["italic"] = True
                 if cell.font.color and cell.font.color.rgb:
-                    style["color"] = str(cell.font.color.rgb)
+                    rgb_raw = str(cell.font.color.rgb)
+                    if not _is_auto_color(rgb_raw):
+                        style["color"] = rgb_raw
             if cell.fill and cell.fill.fgColor and cell.fill.fgColor.rgb:
                 bg = str(cell.fill.fgColor.rgb)
-                if bg and bg != "00000000":
+                if not _is_auto_color(bg):
                     style["bgColor"] = bg
             if cell.alignment:
                 if cell.alignment.horizontal == "center":

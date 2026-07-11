@@ -5,44 +5,44 @@ import os
 import sys
 import ctypes
 import subprocess
-from ctypes import wintypes
+from ctypes import wintypes, Structure, c_ulong, c_void_p, POINTER
 logger = logging.getLogger(__name__)
 
 def get_log_dir():
-    """返回用户可写日志目录"""
-    if sys.platform == "win32":
-        appdata = os.environ.get("APPDATA", os.path.expanduser("~"))
-        log_dir = os.path.join(appdata, "MMFB", "logs")
-    else:
-        log_dir = os.path.join(os.path.expanduser("~"), ".mmfb", "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    return log_dir
+	"""返回用户可写日志目录"""
+	if sys.platform == "win32":
+		appdata = os.environ.get("APPDATA", os.path.expanduser("~"))
+		log_dir = os.path.join(appdata, "MMFB", "logs")
+	else:
+		log_dir = os.path.join(os.path.expanduser("~"), ".mmfb", "logs")
+	os.makedirs(log_dir, exist_ok=True)
+	return log_dir
 
 def get_log_file():
-    """返回当前会话日志文件路径"""
-    return os.path.join(get_log_dir(), "mmfb_latest.log")
+	"""返回当前会话日志文件路径"""
+	return os.path.join(get_log_dir(), "mmfb_latest.log")
 
 def open_log_file():
-    """用系统默认程序打开日志文件"""
-    log_file = get_log_file()
-    if not os.path.exists(log_file):
-        return False
-    try:
-        if sys.platform == "win32":
-            os.startfile(log_file)
-        elif sys.platform == "darwin":
-            subprocess.Popen(["open", log_file])
-        else:
-            subprocess.Popen(["xdg-open", log_file])
-        return True
-    except Exception:
-        return False
+	"""用系统默认程序打开日志文件"""
+	log_file = get_log_file()
+	if not os.path.exists(log_file):
+		return False
+	try:
+		if sys.platform == "win32":
+			os.startfile(log_file)
+		elif sys.platform == "darwin":
+			subprocess.Popen(["open", log_file])
+		else:
+			subprocess.Popen(["xdg-open", log_file])
+		return True
+	except Exception:
+		return False
 from PySide6.QtWidgets import (
 	QMainWindow, QVBoxLayout, QWidget, QApplication, QStackedWidget,
 	QSystemTrayIcon, QMessageBox
 )
 from PySide6.QtCore import (
-	Qt, QUrl, QPoint, QTimer, QEvent, QRect
+	Qt, QUrl, QPoint, QTimer, QEvent, QRect, QAbstractNativeEventFilter
 )
 from PySide6.QtGui import QResizeEvent, QMouseEvent, QKeyEvent, QPalette, QColor, QDragEnterEvent, QDropEvent
 from PySide6.QtWebChannel import QWebChannel
@@ -51,6 +51,71 @@ from mmfb.core.title_bar import TitleBar
 from mmfb.core.bridge import MMFBBridge
 from mmfb.core.settings_manager import get_settings
 from mmfb.core.tray_icon import TrayIcon
+
+
+# ========== Windows 原生拖拽过滤器 ==========
+class _NativeDDMessage(Structure):
+	_fields_ = [
+		("hwnd", wintypes.HWND),
+		("message", wintypes.UINT),
+		("wParam", wintypes.WPARAM),
+		("lParam", wintypes.LPARAM),
+		("time", wintypes.DWORD),
+		("pt_x", wintypes.LONG),
+		("pt_y", wintypes.LONG),
+	]
+
+class _NativeDragDropFilter(QAbstractNativeEventFilter):
+	"""拦截 Windows WM_DROPFILES 消息，解决 QWebEngineView(Chromium) 吃拖拽的问题"""
+
+	def __init__(self, callback):
+		super().__init__()
+		self._cb = callback
+
+	def nativeEventFilter(self, eventType, message):
+		if eventType != b'windows_generic_MSG':
+			return False, 0
+		try:
+			msg = ctypes.cast(message, POINTER(_NativeDDMessage)).contents
+		except Exception:
+			return False, 0
+		if msg.message != 0x0233:  # WM_DROPFILES
+			return False, 0
+		logger.debug("[NativeFilter] WM_DROPFILES received, wParam=%s", hex(msg.wParam))
+		hDrop = msg.wParam
+		try:
+			file_count = ctypes.windll.shell32.DragQueryFileW(hDrop, 0xFFFFFFFF, None, 0)
+		except Exception as e:
+			logger.warning("[NativeFilter] DragQueryFileW failed: %s", e)
+			return False, 0
+		paths = []
+		for i in range(file_count):
+			try:
+				length = ctypes.windll.shell32.DragQueryFileW(hDrop, i, None, 0)
+			except Exception:
+				continue
+			if length < 1:
+				continue
+			buf = ctypes.create_unicode_buffer(length + 1)
+			try:
+				ctypes.windll.shell32.DragQueryFileW(hDrop, i, buf, length + 1)
+			except Exception:
+				continue
+			paths.append(buf.value)
+		logger.debug("[NativeFilter] extracted %d paths: %s", len(paths), paths[:3])
+		try:
+			ctypes.windll.shell32.DragFinish(hDrop)
+		except Exception:
+			pass
+		if paths and self._cb:
+			logger.debug("[NativeFilter] invoking callback with hwnd=%s", hex(msg.hwnd))
+			self._cb(paths, msg.hwnd)
+		else:
+			logger.debug("[NativeFilter] no paths or no callback")
+		return True, 0
+
+_NDD_CALLBACK = None  # 由 MainWindow.__init__ 赋值
+
 from mmfb.services.global_hotkey import GlobalHotkeySignals, get_manager
 
 HOTZONE_HEIGHT = 40
@@ -98,11 +163,19 @@ class MainWindow(QMainWindow):
 
 		self._window_manager = window_manager
 		self._split_mode = False
+		self._webview_handles = {}  # hwnd -> webview mapping
 		self._split_view = None  # SplitView 实例
+		self._webview_handles = {}  # hwnd -> webview 映射，用于原生拖拽路由
 
 		self._init_window_flags()
 		self._init_dwm_shadow()
 		self._init_ui()
+		# Register native Win32 drag-drop filter
+		global _NDD_CALLBACK
+		_NDD_CALLBACK = self._on_native_drop_files
+		self._dd_filter = _NativeDragDropFilter(_NDD_CALLBACK)
+		from PySide6.QtWidgets import QApplication
+		QApplication.instance().installNativeEventFilter(self._dd_filter)
 
 		# 沉浸式定时器
 		self._hide_timer = QTimer(self)
@@ -194,7 +267,7 @@ class MainWindow(QMainWindow):
 		self._stack.addWidget(self._single_container)
 
 		self._setup_webengine()
-		self.setAcceptDrops(True)
+		self.setAcceptDrops(True)  # Qt drag events (for non-Win32 or fallback)
 
 	def _setup_webengine(self):
 		"""初始化 WebEngine（必须在 QApplication 创建后调用）"""
@@ -205,6 +278,10 @@ class MainWindow(QMainWindow):
 		# 创建 webview 并添加到容器
 		self._webview = QWebEngineView(self._single_container)
 		self._single_layout.addWidget(self._webview)
+
+		# 安装拖拽事件过滤器（QWebEngineView 拦截原生拖拽，需转发给 MainWindow）
+		self._webview.installEventFilter(self)
+		self._webview.setAcceptDrops(False)
 
 		# 配置 Profile 和 Page
 		from mmfb.core.webview import _get_shared_profile
@@ -218,6 +295,16 @@ class MainWindow(QMainWindow):
 		settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, False)
 		settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
 
+		# 为单屏 webview 注册原生拖拽（窗口句柄现已创建）
+		if sys.platform == "win32":
+		    try:
+		        import ctypes
+		        hwnd = int(self._webview.winId())
+		        ctypes.windll.shell32.DragAcceptFiles(hwnd, True)
+		        self._webview_handles[hwnd] = self._webview
+		        logger.debug("[Drag] Single webview registered: hwnd=%s", hex(hwnd))
+		    except Exception as e:
+		        logger.warning("[Drag] Single webview registration failed: %s", e)
 		# 初始化 Bridge
 		self._init_bridge()
 
@@ -324,6 +411,20 @@ class MainWindow(QMainWindow):
 		except Exception:
 			pass
 
+	def eventFilter(self, obj, event):
+	    """转发 QWebEngineView 的拖拽事件到 MainWindow"""
+	    if obj is self._webview:
+	        from PySide6.QtCore import QEvent as _QEvt
+	        if event.type() == _QEvt.Type.DragEnter:
+	            self.dragEnterEvent(event)
+	            return True
+	        elif event.type() == _QEvt.Type.DragMove:
+	            return True
+	        elif event.type() == _QEvt.Type.Drop:
+	            self.dropEvent(event)
+	            return True
+	    return super(MainWindow, self).eventFilter(obj, event)
+
 	def dragEnterEvent(self, event):
 		mime = event.mimeData()
 		if not mime.hasUrls():
@@ -340,6 +441,49 @@ class MainWindow(QMainWindow):
 			event.acceptProposedAction()
 		else:
 			event.ignore()
+
+	def _on_native_drop_files(self, file_paths, hwnd=None):
+		"""Native Win32 drag-drop: process same as dropEvent"""
+		logger.debug("[NativeDrop] received %d files: %s", len(file_paths), file_paths[:3])
+		logger.debug("[NativeDrop] hwnd=%s", hex(hwnd) if hwnd else "None")
+		if not file_paths:
+			return
+		import json, os
+		dropped = []
+		for p in file_paths:
+			if not os.path.isfile(p):
+				continue
+			name = os.path.basename(p)
+			ext = os.path.splitext(name)[1].lstrip('.').lower()
+			dropped.append({'name': name, 'path': p, 'ext': ext})
+		if not dropped:
+			return
+		# 智能路由：如果 hwnd 已映射到某个 webview，则直接加载到该 view（分屏模式）
+		target_view = None
+		if hwnd is not None and hasattr(self, "_webview_handles") and self._webview_handles:
+		    target_view = self._webview_handles.get(hwnd)
+		    if target_view is not None:
+		        logger.debug("[NativeDrop] Routing to mapped webview (hwnd=%s)", hex(hwnd))
+		        try:
+		            self._load_file_in_view(target_view, dropped[0]['path'])
+		        except Exception as e:
+		            logger.error("[NativeDrop] Direct load failed: %s", e)
+		        # 剩余文件处理
+		        if len(dropped) > 1 and hasattr(self, "_split_view") and self._split_mode:
+		            other_view = self._split_view.right_view if target_view is self._split_view.left_view else self._split_view.left_view
+		            try:
+		                self._load_file_in_view(other_view, dropped[1]['path'])
+		            except Exception as e:
+		                logger.error("[NativeDrop] Second file load failed: %s", e)
+		        return  # 直接加载完成，不再发射信号
+		# 单屏模式或无 hwnd 映射，fallback 到前端路由（通过 bridge 信号）
+		payload = json.dumps({'type': 'filesDropped', 'files': dropped}, ensure_ascii=False)
+		logger.debug("[NativeDrop] emitting filesDropped payload: %s", payload[:200])
+		if hasattr(self, '_bridge') and self._bridge:
+			self._bridge.filesDropped.emit(payload)
+			self._record_history(dropped[0]['path'], dropped[0]['name'], dropped[0]['ext'])
+		else:
+			logger.warning("[NativeDrop] bridge not ready, dropping payload")
 
 	def dropEvent(self, event):
 		try:
@@ -748,10 +892,17 @@ class MainWindow(QMainWindow):
 			logger.warning("[_safe_restore_title_bar] %s", e)
 
 	def showEvent(self, event):
-		"""窗口每次可见时强制恢复标题栏"""
+		"""窗口每次可见时强制恢复标题栏，并注册 Win32 拖拽"""
 		logger.debug("[showEvent] 窗口显示事件")
 		super().showEvent(event)
 		self._safe_restore_title_bar()
+		# 注册 WM_DROPFILES（窗口句柄此时已有效）
+		if sys.platform == "win32":
+			try:
+				ctypes.windll.shell32.DragAcceptFiles(int(self.winId()), True)
+				logger.debug("[MainWindow] DragAcceptFiles(True)")
+			except Exception as e:
+				logger.warning("[MainWindow] DragAcceptFiles failed: %s", e)
 
 	def changeEvent(self, event):
 		"""窗口状态变更处理"""

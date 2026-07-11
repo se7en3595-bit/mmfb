@@ -78,15 +78,18 @@
          * @param {string} path - 路径（不含 #），如 '/settings' 或 '/view/pdf?file=xxx'
          */
         navigate: function (path) {
+            console.log('[Router] navigate called with:', path);
             // 规范化路径
             if (path && path.indexOf('#') === 0) {
                 path = path.substring(1);
             }
             var target = '#' + (path || '/');
+            console.log('[Router] setting hash to:', target);
             // 更新 hash（会自动触发 hashchange 事件）
             global.location.hash = target;
             // 某些情况下 hash 不变（导航回同一位置），需要手动触发
             this._parseHash();
+            console.log('[Router] current route after parse:', this._currentRoute);
             try {
                 this.render();
             } catch (e) {
@@ -119,17 +122,21 @@
          */
         _parseHash: function () {
             var hash = global.location.hash || '#/';
+            console.log('[Router] parsing hash:', hash);
             var pathPart = '/';
             var queryPart = '';
-
             if (hash.length > 1) {
                 pathPart = hash.substring(1);
+            // Qt setFragment encodes ? -> %3F, = -> %3D
+            pathPart = pathPart.replace(/%3F/g, "?");
+            pathPart = pathPart.replace(/%3D/g, "=");
                 var qIdx = pathPart.indexOf('?');
                 if (qIdx >= 0) {
                     queryPart = pathPart.substring(qIdx + 1);
                     pathPart = pathPart.substring(0, qIdx);
                 }
             }
+            console.log('[Router] parsed pathPart:', pathPart, 'queryPart:', queryPart);
 
             // 解析 query string
             var query = {};
@@ -145,6 +152,7 @@
                     }
                 });
             }
+            console.log('[Router] final query:', query);
 
             this._currentRoute = { path: pathPart || '/', query: query };
         },

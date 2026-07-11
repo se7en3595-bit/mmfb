@@ -10,6 +10,7 @@
 
 /* ========== 工具栏 ========== */
 .xlsx-viewer__toolbar {
+    position: relative;
     height: 38px;
     display: flex;
     align-items: center;
@@ -29,6 +30,7 @@
 }
 
 .xlsx-viewer__toolbar-right {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
@@ -71,6 +73,7 @@
 }
 
 /* ---------- 操作按钮 ---------- */
+.xlsx-viewer__adjust-btn,
 .xlsx-viewer__edit-btn,
 .xlsx-viewer__save-btn {
     padding: 4px 10px;
@@ -84,6 +87,13 @@
     transition: background var(--transition-fast), opacity var(--transition-fast);
 }
 
+.xlsx-viewer__adjust-btn {
+    font-size: 14px;
+    padding: 2px 8px;
+    line-height: 1;
+}
+
+.xlsx-viewer__adjust-btn:hover,
 .xlsx-viewer__edit-btn:hover,
 .xlsx-viewer__save-btn:hover:not(:disabled) {
     background: var(--color-bg-hover);
@@ -241,4 +251,156 @@
 
 .xlsx-viewer__empty-title {
     font-size: var(--font-size-sm);
+}
+
+/* ========== 亮度/对比度弹窗 ========== */
+.xlsx-adjust-dialog {
+    position: absolute;
+    top: 46px;
+    right: var(--spacing-md);
+    z-index: 100;
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-md);
+    min-width: 240px;
+    font-size: var(--font-size-xs);
+}
+
+.xlsx-adjust-dialog__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.xlsx-adjust-dialog__row label {
+    flex-shrink: 0;
+    width: 40px;
+    color: var(--color-text-secondary);
+    text-align: right;
+}
+
+.xlsx-adjust-dialog__row input[type="range"] {
+    flex: 1;
+    accent-color: var(--color-accent);
+}
+
+.xlsx-adjust-dialog__val {
+    flex-shrink: 0;
+    width: 36px;
+    text-align: right;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.xlsx-adjust-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-sm);
+}
+
+.xlsx-adjust-dialog__btn {
+    padding: 3px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    transition: background var(--transition-fast);
+}
+
+.xlsx-adjust-dialog__btn:hover {
+    background: var(--color-bg-hover);
+}
+
+.xlsx-adjust-dialog__btn--reset {
+    color: var(--color-text-muted);
+}
+
+/* 文字颜色切换按钮 */
+.xlsx-viewer__color-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-family: Georgia, serif;
+    font-weight: 700;
+    line-height: 1;
+    border-bottom: 3px solid transparent;
+    transition: background var(--transition-fast);
+    user-select: none;
+}
+
+.xlsx-viewer__color-btn:hover {
+    background: var(--color-bg-hover);
+}
+
+.xlsx-viewer__color-btn.is-override {
+    border-color: var(--color-accent);
+    border-bottom-width: 3px;
+    color: var(--color-accent);
+}
+
+/* 文字颜色选择面板 */
+.xlsx-color-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: var(--spacing-xs);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    min-width: 220px;
+}
+
+.xlsx-color-panel__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.xlsx-color-panel__item:hover {
+    background: var(--color-bg-hover);
+}
+
+.xlsx-color-panel__item.is-active {
+    border-color: var(--color-accent);
+    background: var(--color-bg-hover);
+}
+
+.xlsx-color-panel__swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    flex-shrink: 0;
 }

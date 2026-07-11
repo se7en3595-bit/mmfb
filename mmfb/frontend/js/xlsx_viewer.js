@@ -30,6 +30,13 @@
         this._cellMap = new Map();      // "r,c" -> cell data
         this._domCellMap = new Map();   // "r,c" -> DOM element
 
+        // 亮度/对比度调节
+        this._brightness = 1.0;
+        this._contrast = 1.0;
+
+        // 文字颜色覆盖（null=默认/跟随原始颜色，否则为 '#rrggbb'）
+        this._textColorOverride = null;
+
         this._init();
     }
 
@@ -61,6 +68,29 @@
             '<span class="xlsx-viewer__status" id="xlsx-status"></span>' +
             '</div>';
         root.appendChild(toolbar);
+
+        // 亮度/对比度按钮
+        var adjBtn = document.createElement('button');
+        adjBtn.className = 'xlsx-viewer__adjust-btn';
+        adjBtn.textContent = '◐';
+        adjBtn.title = '亮度/对比度';
+        adjBtn.addEventListener('click', function () {
+            self._showAdjustDialog();
+        });
+        toolbar.querySelector('.xlsx-viewer__toolbar-right').prepend(adjBtn);
+        this._adjustBtn = adjBtn;
+
+        // 文字颜色切换按钮
+        var colorBtn = document.createElement('button');
+        colorBtn.className = 'xlsx-viewer__color-btn';
+        colorBtn.textContent = 'A';
+        colorBtn.title = '切换文字颜色';
+        colorBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            self._showColorPanel();
+        });
+        toolbar.querySelector('.xlsx-viewer__toolbar-right').prepend(colorBtn);
+        this._colorBtn = colorBtn;
 
         // 编辑模式切换按钮（有 save 标志时显示）
         if (this._editable) {
@@ -378,6 +408,166 @@
         }
     };
 
+    /**
+     * 应用亮度/对比度 filter 到表格区域
+     * CSS filter 在 GPU 层合成，对 table 渲染性能影响可忽略
+     */
+    MMFBXlsxViewer.prototype._applyFilter = function () {
+        if (!this._bodyEl) return;
+        var parts = [];
+        if (this._brightness !== 1.0) parts.push('brightness(' + this._brightness.toFixed(2) + ')');
+        if (this._contrast !== 1.0) parts.push('contrast(' + this._contrast.toFixed(2) + ')');
+        this._bodyEl.style.filter = parts.length > 0 ? parts.join(' ') : '';
+    };
+
+    /**
+     * 将当前 _textColorOverride 应用到所有可见单元格
+     * 如果 override 为 null，恢复到原始颜色（通过重新渲染实现）
+     */
+    MMFBXlsxViewer.prototype._applyTextColor = function () {
+        var self = this;
+        if (this._textColorOverride === null) {
+            // 恢复默认：重新渲染当前 Sheet
+            this._renderSheet(this._currentSheetIdx);
+            return;
+        }
+        // 覆盖模式：遍历所有已渲染单元格
+        this._domCellMap.forEach(function (td) {
+            td.style.color = self._textColorOverride;
+        });
+        if (this._colorBtn) {
+            this._colorBtn.style.borderBottomColor = this._textColorOverride;
+            this._colorBtn.classList.add('is-override');
+        }
+    };
+
+    /**
+     * 文字颜色选择面板 — 弹出浮层，8 个常用色 + "默认"
+     */
+    MMFBXlsxViewer.prototype._showColorPanel = function () {
+        var self = this;
+        var host = this._root.querySelector('.xlsx-viewer__toolbar-right');
+        var old = host.querySelector('.xlsx-color-panel');
+        if (old) { old.remove(); return; }
+
+        var palette = [
+            { name: '默认', val: null },
+            { name: '#1A1A1E', val: '#1A1A1E' },   // 近黑（Light/Warm 主题适用）
+            { name: '#FFFFFF', val: '#FFFFFF' },   // 白（Dark 主题适用）
+            { name: '#E74C3C', val: '#E74C3C' },   // 红
+            { name: '#3498DB', val: '#3498DB' },   // 蓝
+            { name: '#2ECC71', val: '#2ECC71' },   // 绿
+            { name: '#F39C12', val: '#F39C12' },   // 橙
+            { name: '#9B59B6', val: '#9B59B6' }    // 紫
+        ];
+
+        var html = '<div class="xlsx-color-panel">';
+        palette.forEach(function (item) {
+            var label = item.val === null ? '默认'
+                : '<span class="xlsx-color-panel__swatch" style="background:' + item.val + '"></span>' + item.name;
+            var cls = 'xlsx-color-panel__item' +
+                ((self._textColorOverride === item.val) ? ' is-active' : '');
+            html += '<button class="' + cls + '" data-val="' + (item.val || '') + '">' + label + '</button>';
+        });
+        html += '</div>';
+
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        var panel = div.firstElementChild;
+        host.appendChild(panel);
+
+        var items = panel.querySelectorAll('.xlsx-color-panel__item');
+        for (var i = 0; i < items.length; i++) {
+            (function (btn) {
+                btn.addEventListener('click', function () {
+                    var v = btn.getAttribute('data-val');
+                    self._textColorOverride = v === '' ? null : v;
+                    self._applyTextColor();
+                    panel.remove();
+                });
+            })(items[i]);
+        }
+
+        setTimeout(function () {
+            document.addEventListener('mousedown', function outside(ev) {
+                if (self._colorBtn && self._colorBtn.contains(ev.target)) return;
+                if (panel.contains(ev.target)) return;
+                panel.remove();
+                document.removeEventListener('mousedown', outside);
+            });
+        }, 100);
+    };
+
+    /**
+     * 亮度/对比度调节弹窗
+     */
+    MMFBXlsxViewer.prototype._showAdjustDialog = function () {
+        var self = this;
+        var host = this._root.querySelector('.xlsx-viewer__toolbar-right');
+        var old = host.querySelector('.xlsx-adjust-dialog');
+        if (old) old.remove();
+
+        var html =
+            '<div class="xlsx-adjust-dialog">' +
+            '<div class="xlsx-adjust-dialog__row">' +
+            '<label>亮度</label>' +
+            '<input type="range" id="xlsx-adj-brightness" min="0.3" max="2.0" step="0.05" value="' + this._brightness + '">' +
+            '<span class="xlsx-adjust-dialog__val" id="xlsx-adj-brightness-val">' + this._brightness.toFixed(2) + '</span>' +
+            '</div>' +
+            '<div class="xlsx-adjust-dialog__row">' +
+            '<label>对比度</label>' +
+            '<input type="range" id="xlsx-adj-contrast" min="0.3" max="2.0" step="0.05" value="' + this._contrast + '">' +
+            '<span class="xlsx-adjust-dialog__val" id="xlsx-adj-contrast-val">' + this._contrast.toFixed(2) + '</span>' +
+            '</div>' +
+            '<div class="xlsx-adjust-dialog__actions">' +
+            '<button class="xlsx-adjust-dialog__btn xlsx-adjust-dialog__btn--reset" id="xlsx-adj-reset">重置</button>' +
+            '<button class="xlsx-adjust-dialog__btn xlsx-adjust-dialog__btn--close" id="xlsx-adj-close">关闭</button>' +
+            '</div>' +
+            '</div>';
+
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        var dlg = div.firstElementChild;
+        host.appendChild(dlg);
+
+        var bInput = dlg.querySelector('#xlsx-adj-brightness');
+        var cInput = dlg.querySelector('#xlsx-adj-contrast');
+        var bVal = dlg.querySelector('#xlsx-adj-brightness-val');
+        var cVal = dlg.querySelector('#xlsx-adj-contrast-val');
+
+        var updateFilter = function () {
+            self._brightness = parseFloat(bInput.value);
+            self._contrast = parseFloat(cInput.value);
+            bVal.textContent = self._brightness.toFixed(2);
+            cVal.textContent = self._contrast.toFixed(2);
+            self._applyFilter();
+        };
+
+        bInput.addEventListener('input', updateFilter);
+        cInput.addEventListener('input', updateFilter);
+
+        dlg.querySelector('#xlsx-adj-reset').addEventListener('click', function () {
+            self._brightness = 1.0;
+            self._contrast = 1.0;
+            bInput.value = 1.0;
+            cInput.value = 1.0;
+            bVal.textContent = '1.00';
+            cVal.textContent = '1.00';
+            self._applyFilter();
+        });
+
+        dlg.querySelector('#xlsx-adj-close').addEventListener('click', function () { dlg.remove(); });
+
+        setTimeout(function () {
+            document.addEventListener('mousedown', function outside(ev) {
+                if (self._adjustBtn && self._adjustBtn.contains(ev.target)) return;
+                if (dlg.contains(ev.target)) return;
+                dlg.remove();
+                document.removeEventListener('mousedown', outside);
+            });
+        }, 100);
+    };
+
     MMFBXlsxViewer.prototype._flashStatus = function (msg, isError) {
         var self = this;
         if (!this._statusEl) return;
@@ -417,13 +607,18 @@
 
     MMFBXlsxViewer.prototype._formatColor = function (raw, isBg) {
         if (!raw || typeof raw !== 'string') return '';
-        // 处理 ARGB 格式（8位 hex）或 6位 hex
         var hex = raw.replace(/[^0-9A-Fa-f]/g, '');
         if (hex.length === 8) {
-            // 跳过 alpha 通道，转为 #RRGGBB
+            // ARGB 格式：alpha 为 00 表示"自动"颜色，须跳过
+            var alpha = hex.substring(0, 2);
             hex = hex.substring(2);
+            if (alpha === '00') return '';
         }
         if (hex.length === 6) {
+            // 纯黑 (#000000) 在 Excel 中是"默认文字色"，
+            // 交给 CSS 主题变量接管，避免在 dark 主题下黑字融于深色背景。
+            // Light/Warm 主题下 CSS 变量本身就是近黑色，视觉无差异。
+            if (hex.toUpperCase() === '000000' && !isBg) return '';
             return '#' + hex;
         }
         return '';

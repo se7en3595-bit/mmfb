@@ -27,19 +27,30 @@
             this._initialized = true;
 
             this._rootEl = document.getElementById('router-view');
+            console.log('[Navigator] rootEl:', this._rootEl ? 'found' : 'NOT FOUND');
             this._setupDragVisualFeedback();
 
             // 监听来自 Python 的 filesDropped 信号
             MMFBBridge.ready().then(function (info) {
+                console.log('[Navigator] Bridge ready, mode:', info.mode);
                 if (info.mode !== 'live') return;
                 var bridge = MMFBBridge._bridge;
-                if (!bridge) return;
+                if (!bridge) {
+                    console.warn('[Navigator] no bridge object');
+                    return;
+                }
 
                 if (bridge.filesDropped) {
+                    console.log('[Navigator] Connecting filesDropped signal');
                     bridge.filesDropped.connect(function (payload) {
+                        console.log('[Navigator] filesDropped received, payload size:', payload.length);
                         MMFBNavigator._onFilesDropped(payload);
                     });
+                } else {
+                    console.warn('[Navigator] filesDropped signal not available');
                 }
+            }).catch(function (err) {
+                console.error('[Navigator] Bridge ready failed:', err);
             });
 
             console.log('[MMFB] navigator ready');
@@ -86,6 +97,7 @@
          * @param {string} payload - JSON 字符串 {type:"filesDropped", files:[...]}
          */
         _onFilesDropped: function (payload) {
+            console.log('[Navigator] _onFilesDropped called, payload:', payload);
             var data;
             try {
                 data = JSON.parse(payload);
@@ -95,15 +107,20 @@
             }
 
             if (data.type !== 'filesDropped' || !Array.isArray(data.files)) {
+                console.warn('[Navigator] payload type mismatch or files not array');
                 return;
             }
 
             this._lastFiles = data.files;
 
-            if (data.files.length === 0) return;
+            if (data.files.length === 0) {
+                console.warn('[Navigator] no files in payload');
+                return;
+            }
 
             // 更新窗口标题（取第一个文件，多文件时显示 +N）
             var first = data.files[0];
+            console.log('[Navigator] first file:', first);
             if (global.MMFBWindow && global.MMFBWindow.setTitle) {
                 var title = first.name;
                 if (data.files.length > 1) {
@@ -113,6 +130,7 @@
             }
 
             // 分发给对应路由
+            console.log('[Navigator] calling _dispatch with file:', first);
             this._dispatch(first);
 
             console.log('[MMFB] files dropped:', data.files.length, 'first:', first.name);
@@ -125,6 +143,7 @@
          * @param {object} file - 文件信息 {name, path, ext}
          */
         _dispatch: function (file) {
+            console.log('[Navigator] _dispatch file:', file);
             // 事件机制（Handler 订阅此事件获取文件信息）
             var evt;
             try {
@@ -135,13 +154,15 @@
                 evt.initCustomEvent('mmfb:open-file', false, false, file);
             }
             window.dispatchEvent(evt);
+            console.log('[Navigator] custom event dispatched');
 
             // 路由跳转：先尝试 preview/<ext>，若无对应路由则由 app.js 的占位路由处理
             if (global.MMFBRouter) {
-                global.MMFBRouter.navigate(
-                    '/preview/' + (file.ext || 'unknown') +
-                    '?file=' + encodeURIComponent(file.path)
-                );
+                var route = '/view/' + (file.ext || 'unknown') + '?file=' + encodeURIComponent(file.path);
+                console.log('[Navigator] navigating to:', route);
+                global.MMFBRouter.navigate(route);
+            } else {
+                console.error('[Navigator] MMFBRouter not available!');
             }
         },
 

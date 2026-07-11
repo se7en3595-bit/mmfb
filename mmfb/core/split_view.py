@@ -11,6 +11,9 @@
 - 提供 enter_split(file_left, file_right) / exit_split() 切换
 - 维护 split 状态供 Python/JS 交互查询
 """
+import logging
+logger = logging.getLogger(__name__)
+
 from typing import Optional
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
@@ -59,7 +62,7 @@ class SplitView(QWidget):
 
         self._splitter.addWidget(self._left_view)
         self._splitter.addWidget(self._right_view)
-
+		# 为分屏子 webview 注册原生拖拽		if sys.platform == "win32":		    try:		        import ctypes		        left_hwnd = int(self._left_view.winId())		        right_hwnd = int(self._right_view.winId())		        ctypes.windll.shell32.DragAcceptFiles(left_hwnd, True)		        ctypes.windll.shell32.DragAcceptFiles(right_hwnd, True)		        # 将 hwnd 映射关系存入 MainWindow		        if hasattr(self._window, "_webview_handles"):		            self._window._webview_handles[left_hwnd] = self._left_view		            self._window._webview_handles[right_hwnd] = self._right_view		            logger.debug("[SplitView] DragAcceptFiles on left/right views (hwnd=%s, %s)", hex(left_hwnd), hex(right_hwnd))		        else:		            logger.warning("[SplitView] MainWindow missing _webview_handles")		    except Exception as e:		        logger.warning("[SplitView] DragAcceptFiles failed: %s", e)
         # 设置比例为 50:50
         self._splitter.setSizes([500, 500])
 
@@ -80,7 +83,7 @@ class SplitView(QWidget):
             event.ignore()
 
     def dropEvent(self, event: QDropEvent):
-"""分屏模式拖入文件：根据鼠标位置加载到左栏或右栏"""
+        """分屏模式拖入文件：根据鼠标位置加载到左栏或右栏"""
         import json, os
         mime = event.mimeData()
         if not mime.hasUrls():
