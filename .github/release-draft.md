@@ -4,9 +4,9 @@
 
 ---
 
-## 版本：v0.6.0
+## 版本：v0.8.0
 
-**发布日期：** 2026-07-10
+**发布日期：** 2026-07-12
 
 ---
 
@@ -66,7 +66,7 @@
 
 访问 [Releases 页面](https://github.com/mmfb-windows/mmfb/releases) 下载：
 
-- `MMFB-Setup-0.6.0.exe` - 安装包（推荐）
+- `MMFB-Setup-0.8.0.exe` - 安装包（推荐）
 
 ### 系统要求
 
@@ -102,7 +102,7 @@ python main.py
 
 ## 🔄 从上一版本升级
 
-v0.6.0 是首个开源版本，无需升级。
+v0.8.0 修复拖拽文件后窗口边框消失、最小化振荡、分屏卡死等关键 Bug。
 
 ---
 
@@ -133,4 +133,4 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 
-**立即下载：** [MMFB-Setup-0.6.0.exe](https://github.com/mmfb-windows/mmfb/releases/download/v0.6.0/MMFB-Setup-0.6.0.exe)
+**立即下载：** [MMFB-Setup-0.8.0.exe](https://github.com/mmfb-windows/mmfb/releases/download/v0.8.0/MMFB-Setup-0.8.0.exe)

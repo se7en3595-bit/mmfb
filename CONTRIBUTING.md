@@ -41,7 +41,7 @@ If you find a bug, please search [Issues](https://github.com/mmfb-windows/mmfb/i
 
 ## 系统信息 / System Info
 - 操作系统：Windows 10/11 版本
-- MMFB 版本：v0.6.0
+- MMFB 版本：v0.8.0
 - Python 版本：3.x（仅源码运行）
 - 文件格式及大小：
 

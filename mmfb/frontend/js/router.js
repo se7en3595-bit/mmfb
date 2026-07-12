@@ -85,20 +85,24 @@
             }
             var target = '#' + (path || '/');
             console.log('[Router] setting hash to:', target);
-            // 更新 hash（会自动触发 hashchange 事件）
-            global.location.hash = target;
-            // 某些情况下 hash 不变（导航回同一位置），需要手动触发
-            this._parseHash();
-            console.log('[Router] current route after parse:', this._currentRoute);
-            try {
-                this.render();
-            } catch (e) {
-                console.error('[MMFB] render error:', e);
-                // 延迟重试一次
-                var self = this;
-                setTimeout(function () {
-                    try { self.render(); } catch (e2) { console.error('[MMFB] render retry error:', e2); }
-                }, 50);
+            var currentHash = global.location.hash || '#/';
+            if (currentHash === target) {
+                // hash 未变：手动触发渲染（hashchange 不会触发）
+                this._parseHash();
+                console.log('[Router] hash unchanged, force render');
+                try {
+                    this.render();
+                } catch (e) {
+                    console.error('[MMFB] render error:', e);
+                    var self = this;
+                    setTimeout(function () {
+                        try { self.render(); } catch (e2) { console.error('[MMFB] render retry error:', e2); }
+                    }, 50);
+                }
+            } else {
+                // 更新 hash，hashchange 事件会触发 _parseHash + render，不要手动再调一次
+                global.location.hash = target;
+                console.log('[Router] hash changed, waiting for hashchange to render');
             }
         },
 

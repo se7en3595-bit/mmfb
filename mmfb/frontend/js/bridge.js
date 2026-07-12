@@ -977,8 +977,10 @@
          */
         toggleSplit: function () {
             return this.ready().then(function () {
-                if (this._bridge && this._bridge.split_current_window) {
-                    return this._bridge.split_current_window().then(function(r) { return r; });
+                if (this._bridge && typeof this._bridge.split_current_window === 'function') {
+                    return this._bridge.split_current_window().then(function(r) {
+                        try { return JSON.parse(r); } catch (e) { return r; }
+                    });
                 }
                 return { ok: false, error: 'no bridge' };
             }.bind(this));

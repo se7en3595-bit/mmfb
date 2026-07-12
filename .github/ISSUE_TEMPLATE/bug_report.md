@@ -32,7 +32,7 @@ assignees: ''
 ## System Information
 
 - 操作系统 (OS): Windows 10 / 11 (版本号)
-- MMFB 版本 (Version): e.g. v0.6.0
+- MMFB 版本 (Version): e.g. v0.8.0
 - Python 版本 (Python version): e.g. 3.9.0 (仅源码运行)
 - 文件格式与大小 (File format & size): 
 

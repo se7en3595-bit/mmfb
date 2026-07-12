@@ -110,7 +110,7 @@ find . -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null
 
 检查 `mmfb/version.py`：
 ```python
-MMFB_VERSION = "0.6.0"  # ✅ 正确
+MMFB_VERSION = "0.8.0"  # ✅ 正确
 MMFB_UPDATE_REPO = "mmfb-windows/mmfb"  # ✅ 替换为实际用户名/仓库名
 ```
 
@@ -170,7 +170,7 @@ git push origin v0.6.0
   - JavaScript：~4,000 行
   - HTML/CSS：~3,000 行
 - **核心模块**：53 个原子任务完成 50 个（94%）
-- **当前版本**：v0.6.0
+- **当前版本**：v0.8.0
 
 ## 🎯 后续任务（项目中）
 
@@ -198,4 +198,4 @@ git push origin v0.6.0
 
 **最后更新时间：** 2026-07-10
 **准备人员：** SE7EN / Claude
-**版本：** v0.6.0
+**版本：** v0.8.0

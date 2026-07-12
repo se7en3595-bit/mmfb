@@ -95,7 +95,7 @@ class DocxHandler(BaseHandler):
             # 合并 body 内部 HTML，加上 docx-viewer 包装
             body_html = '\n'.join(html_fragments)
             full_html = (
-                '<div class="docx-body">'
+                '<div class="docx-body" style="user-select: text;">'
                 + body_html
                 + '</div>'
             )
@@ -132,7 +132,8 @@ class DocxHandler(BaseHandler):
             return preview
 
         paragraphs: List[Dict[str, Any]] = []
-        for i, para in enumerate(doc.paragraphs):
+        all_paras = self._get_all_paragraphs(doc)
+        for i, para in enumerate(all_paras):
             text = para.text or ""
             style_name = para.style.name if para.style else "Normal"
             paragraphs.append({
@@ -158,15 +159,15 @@ class DocxHandler(BaseHandler):
             if not isinstance(changes, list):
                 return False
             doc = Document(self.path)
-            doc_paragraphs = list(doc.paragraphs)
+            all_paras = self._get_all_paragraphs(doc)
             for ch in changes:
                 idx = ch.get("index")
                 new_text = ch.get("text", "")
                 if idx is None:
                     continue
-                if idx < 0 or idx >= len(doc_paragraphs):
+                if idx < 0 or idx >= len(all_paras):
                     continue
-                para = doc_paragraphs[idx]
+                para = all_paras[idx]
                 # 保留第一个 run 的样式，清空其余 run
                 if para.runs:
                     first_run = para.runs[0]
@@ -181,6 +182,22 @@ class DocxHandler(BaseHandler):
         except Exception as e:
             print(f"[DocxHandler] save_paragraphs error: {e}")
             return False
+
+    def _get_all_paragraphs(self, doc) -> List[Paragraph]:
+        """获取文档中所有的段落，包含表格单元格等容器内部的段落"""
+        paragraphs = []
+        def _explore(element):
+            for child in element:
+                tag = child.tag.split('}')[-1] if '}' in child.tag else child.tag
+                if tag == 'p':
+                    paragraphs.append(Paragraph(child, doc))
+                elif tag == 'tbl':
+                    table = Table(child, doc)
+                    for row in table.rows:
+                        for cell in row.cells:
+                            _explore(cell._element)
+        _explore(doc.element.body)
+        return paragraphs
 
     def _paragraph_to_html(self, para: Paragraph, embeds: Optional[Dict] = None) -> str:
         """将一个 Paragraph 对象转为 HTML，内嵌 <img> 引用 data URI"""

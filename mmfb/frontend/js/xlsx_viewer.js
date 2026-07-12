@@ -137,11 +137,45 @@
     };
 
     MMFBXlsxViewer.prototype._renderEmpty = function () {
+        var self = this;
         this._bodyEl.innerHTML =
-            '<div class="xlsx-viewer__empty">' +
+            '<div class="xlsx-viewer__empty" style="cursor: pointer;" title="双击以初始化并编辑工作表">' +
             '<div class="xlsx-viewer__empty-icon">&#128203;</div>' +
             '<div class="xlsx-viewer__empty-title">无可预览数据</div>' +
+            (this._editable ? '<div class="xlsx-viewer__empty-hint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 8px;">双击以初始化默认工作表并开始编辑</div>' : '') +
             '</div>';
+
+        if (this._editable) {
+            var emptyEl = this._bodyEl.querySelector('.xlsx-viewer__empty');
+            if (emptyEl) {
+                emptyEl.addEventListener('dblclick', function() {
+                    var newSheet = {
+                        name: 'Sheet1',
+                        title: 'Sheet1',
+                        maxRow: 10,
+                        maxCol: 5,
+                        cells: []
+                    };
+                    for (var r = 0; r < 10; r++) {
+                        for (var c = 0; c < 5; c++) {
+                            var addr = self._colToLetter(c) + (r + 1);
+                            newSheet.cells.push({
+                                r: r,
+                                c: c,
+                                address: addr,
+                                value: '',
+                                type: 's',
+                                style: {}
+                            });
+                        }
+                    }
+                    self._sheets = [newSheet];
+                    self._currentSheetIdx = 0;
+                    self._renderSheetTabs();
+                    self._renderSheet(0);
+                });
+            }
+        }
     };
 
     MMFBXlsxViewer.prototype._renderSheetTabs = function () {
@@ -182,10 +216,37 @@
         var cols = sheet.maxCol || 0;
 
         if (rows === 0 || cols === 0) {
+            var self = this;
             this._bodyEl.innerHTML =
-                '<div class="xlsx-viewer__empty">' +
+                '<div class="xlsx-viewer__empty" style="cursor: pointer;" title="双击以初始化并编辑工作表">' +
                 '<div class="xlsx-viewer__empty-title">工作表 "' + sheet.name + '" 为空</div>' +
+                (this._editable ? '<div class="xlsx-viewer__empty-hint" style="font-size: 12px; color: var(--color-text-muted); margin-top: 8px;">双击以初始化表格并开始编辑</div>' : '') +
                 '</div>';
+
+            if (this._editable) {
+                var emptyEl = this._bodyEl.querySelector('.xlsx-viewer__empty');
+                if (emptyEl) {
+                    emptyEl.addEventListener('dblclick', function() {
+                        sheet.maxRow = 10;
+                        sheet.maxCol = 5;
+                        sheet.cells = [];
+                        for (var r = 0; r < 10; r++) {
+                            for (var c = 0; c < 5; c++) {
+                                var addr = self._colToLetter(c) + (r + 1);
+                                sheet.cells.push({
+                                    r: r,
+                                    c: c,
+                                    address: addr,
+                                    value: '',
+                                    type: 's',
+                                    style: {}
+                                });
+                            }
+                        }
+                        self._renderSheet(idx);
+                    });
+                }
+            }
             return;
         }
 
@@ -615,10 +676,6 @@
             if (alpha === '00') return '';
         }
         if (hex.length === 6) {
-            // 纯黑 (#000000) 在 Excel 中是"默认文字色"，
-            // 交给 CSS 主题变量接管，避免在 dark 主题下黑字融于深色背景。
-            // Light/Warm 主题下 CSS 变量本身就是近黑色，视觉无差异。
-            if (hex.toUpperCase() === '000000' && !isBg) return '';
             return '#' + hex;
         }
         return '';

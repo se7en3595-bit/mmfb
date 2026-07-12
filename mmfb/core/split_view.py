@@ -2,9 +2,9 @@
 
 在主 MainWindow 中实现左右分屏能力：
 1. QSplitter 容器，左右两栏各嵌入一个 MMFBWebView
-2. 中拖拽调整比例
+2. 中间拖拽调整比例
 3. 可加载不同文档进行对比查看
-4. /退出分屏时隐藏 splitter，单视图占满
+4. 进入/退出分屏时隐藏 splitter，单视图占满
 
 职责：
 - 提供 create_split(parent_window) 工厂方法
@@ -12,6 +12,10 @@
 - 维护 split 状态供 Python/JS 交互查询
 """
 import logging
+import os
+import sys
+import json
+
 logger = logging.getLogger(__name__)
 
 from typing import Optional
@@ -52,9 +56,19 @@ class SplitView(QWidget):
             QSplitter::handle:hover { background: #6B9E6F; }
         """)
 
-        # 左右两个 webview（共享 QWebChannel 以注入 qt.webChannelTransport）
-        self._left_view = MMFBWebView(self, channel=self._channel)
-        self._right_view = MMFBWebView(self, channel=self._channel)
+        # 左右两个 webview，使用独立的 QWebChannel 避免抢占 transport 通道
+        from PySide6.QtWebChannel import QWebChannel
+        self._left_channel = QWebChannel(self)
+        self._left_channel.registerObject("pybridge", self._window._bridge)
+        self._right_channel = QWebChannel(self)
+        self._right_channel.registerObject("pybridge", self._window._bridge)
+
+        self._left_view = MMFBWebView(self, channel=self._left_channel)
+        self._right_view = MMFBWebView(self, channel=self._right_channel)
+
+        # 确保鼠标事件可以正常传递，允许网页接收点击聚焦
+        self._left_view.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+        self._right_view.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
 
         # 子 webview 不接收拖拽，由 SplitView 统一处理
         self._left_view.setAcceptDrops(False)
@@ -62,7 +76,25 @@ class SplitView(QWidget):
 
         self._splitter.addWidget(self._left_view)
         self._splitter.addWidget(self._right_view)
-		# 为分屏子 webview 注册原生拖拽		if sys.platform == "win32":		    try:		        import ctypes		        left_hwnd = int(self._left_view.winId())		        right_hwnd = int(self._right_view.winId())		        ctypes.windll.shell32.DragAcceptFiles(left_hwnd, True)		        ctypes.windll.shell32.DragAcceptFiles(right_hwnd, True)		        # 将 hwnd 映射关系存入 MainWindow		        if hasattr(self._window, "_webview_handles"):		            self._window._webview_handles[left_hwnd] = self._left_view		            self._window._webview_handles[right_hwnd] = self._right_view		            logger.debug("[SplitView] DragAcceptFiles on left/right views (hwnd=%s, %s)", hex(left_hwnd), hex(right_hwnd))		        else:		            logger.warning("[SplitView] MainWindow missing _webview_handles")		    except Exception as e:		        logger.warning("[SplitView] DragAcceptFiles failed: %s", e)
+
+        # 为分屏子 webview 注册原生拖拽
+        if sys.platform == "win32":
+            try:
+                import ctypes
+                left_hwnd = int(self._left_view.winId())
+                right_hwnd = int(self._right_view.winId())
+                ctypes.windll.shell32.DragAcceptFiles(left_hwnd, True)
+                ctypes.windll.shell32.DragAcceptFiles(right_hwnd, True)
+                # 将 hwnd 映射关系存入 MainWindow
+                if hasattr(self._window, "_webview_handles"):
+                    self._window._webview_handles[left_hwnd] = self._left_view
+                    self._window._webview_handles[right_hwnd] = self._right_view
+                    logger.debug("[SplitView] DragAcceptFiles on left/right views (hwnd=%s, %s)", hex(left_hwnd), hex(right_hwnd))
+                else:
+                    logger.warning("[SplitView] MainWindow missing _webview_handles")
+            except Exception as e:
+                logger.warning("[SplitView] DragAcceptFiles failed: %s", e)
+
         # 设置比例为 50:50
         self._splitter.setSizes([500, 500])
 
@@ -84,7 +116,6 @@ class SplitView(QWidget):
 
     def dropEvent(self, event: QDropEvent):
         """分屏模式拖入文件：根据鼠标位置加载到左栏或右栏"""
-        import json, os
         mime = event.mimeData()
         if not mime.hasUrls():
             event.ignore()
@@ -99,24 +130,25 @@ class SplitView(QWidget):
             event.ignore()
             return
         event.acceptProposedAction()
-# 根据 event.pos() 判断鼠标落在左栏还是右栏
-mid_x = self.width() // 2 if self.width() > 0 else 0
-drop_on_left = event.pos().x() < mid_x
 
-# 通知 MainWindow 加载文件
-if self._window is not None:
-    first = paths[0]
-    if drop_on_left:
-        self._window._load_file_in_view(self._left_view, first)
-    else:
-        self._window._load_file_in_view(self._right_view, first)
-    # 多文件时第二个文件加载到另一栏
-    if len(paths) > 1:
-        second = paths[1]
-        if drop_on_left:
-            self._window._load_file_in_view(self._right_view, second)
-        else:
-            self._window._load_file_in_view(self._left_view, second)
+        # 根据 event.pos() 判断鼠标落在左栏还是右栏
+        mid_x = self.width() // 2 if self.width() > 0 else 0
+        drop_on_left = event.pos().x() < mid_x
+
+        # 通知 MainWindow 加载文件
+        if self._window is not None:
+            first = paths[0]
+            if drop_on_left:
+                self._window._load_file_in_view(self._left_view, first)
+            else:
+                self._window._load_file_in_view(self._right_view, first)
+            # 多文件时第二个文件加载到另一栏
+            if len(paths) > 1:
+                second = paths[1]
+                if drop_on_left:
+                    self._window._load_file_in_view(self._right_view, second)
+                else:
+                    self._window._load_file_in_view(self._left_view, second)
 
     def _on_splitter_moved(self, pos: int, index: int):
         """中手柄拖动后计算比例"""

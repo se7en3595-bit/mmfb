@@ -186,6 +186,7 @@ class MainWindow(QMainWindow):
 		self._mouse_in_hotzone = False
 		self._immersive_mode = True
 		self._header_auto_hide = False  # 启动后固定显示标题栏
+		self._suppress_auto_hide = False  # 拖入文件后短暂抑制自动隐藏
 
 		self._current_theme = "warm"
 
@@ -368,7 +369,7 @@ class MainWindow(QMainWindow):
 		palette.setColor(QPalette.ColorRole.ButtonText, QColor(colors["text_primary"]))
 		palette.setColor(QPalette.ColorRole.Highlight, QColor(colors["accent"]))
 		self.setPalette(palette)
-		if hasattr(self, "__title_bar") and self._title_bar:
+		if hasattr(self, "_title_bar") and self._title_bar:
 			self._apply_title_bar_theme(theme_name)
 
 	def _apply_title_bar_theme(self, theme_name):
@@ -380,7 +381,7 @@ class MainWindow(QMainWindow):
 		bar.title_label.setStyleSheet("color: " + colors["text_secondary"] + ";")
 
 	def notify_frontend_theme(self, theme_name):
-		if hasattr(self, "__bridge") and self._bridge:
+		if hasattr(self, "_bridge") and self._bridge:
 			js = "if (window.MMFBTheme) window.MMFBTheme.set(\"" + theme_name + "\", false);"
 			self._webview.page().runJavaScript(js)
 
@@ -462,7 +463,7 @@ class MainWindow(QMainWindow):
 		target_view = None
 		if hwnd is not None and hasattr(self, "_webview_handles") and self._webview_handles:
 		    target_view = self._webview_handles.get(hwnd)
-		    if target_view is not None:
+		    if target_view is not None and self._split_mode and target_view is not self._webview:
 		        logger.debug("[NativeDrop] Routing to mapped webview (hwnd=%s)", hex(hwnd))
 		        try:
 		            self._load_file_in_view(target_view, dropped[0]['path'])
@@ -482,6 +483,8 @@ class MainWindow(QMainWindow):
 		if hasattr(self, '_bridge') and self._bridge:
 			self._bridge.filesDropped.emit(payload)
 			self._record_history(dropped[0]['path'], dropped[0]['name'], dropped[0]['ext'])
+			self._suppress_auto_hide_for(3000)
+			self._show_header()
 		else:
 			logger.warning("[NativeDrop] bridge not ready, dropping payload")
 
@@ -515,6 +518,8 @@ class MainWindow(QMainWindow):
 			self._bridge.filesDropped.emit(payload)
 			if dropped_files:
 				self._record_history(dropped_files[0]["path"], dropped_files[0]["name"], dropped_files[0]["ext"])
+				self._suppress_auto_hide_for(3000)
+				self._show_header()
 		except Exception as e:
 			logger.error("[dropEvent] error: %s", e)
 			event.ignore()
@@ -538,16 +543,18 @@ class MainWindow(QMainWindow):
 		self.setWindowTitle(file_path)
 		if self._title_bar:
 			self._title_bar.set_title(os.path.basename(file_path))
-		if hasattr(self, "__bridge") and self._bridge:
+		if hasattr(self, "_bridge") and self._bridge:
 			import json
 			name = os.path.basename(file_path)
 			ext = os.path.splitext(name)[1].lstrip(".").lower()
 			payload = json.dumps({"type": "filesDropped", "files": [{"name": name, "path": file_path, "ext": ext}]}, ensure_ascii=False)
 			self._bridge.filesDropped.emit(payload)
+			self._suppress_auto_hide_for(3000)
+			self._show_header()
 
 	def setWindowTitle(self, title):
 		super().setWindowTitle(title)
-		if hasattr(self, "__title_bar") and self._title_bar:
+		if hasattr(self, "_title_bar") and self._title_bar:
 			self._title_bar.set_title(title)
 
 	def _on_window_title_changed(self, title):
@@ -560,12 +567,16 @@ class MainWindow(QMainWindow):
 	def enter_split_mode(self, left_file=None, right_file=None):
 		if self._split_mode:
 			return
+		# 抑制标题栏自动隐藏，避免创建 webview 期间触发隐藏
+		self._suppress_auto_hide_for(3000)
 		from mmfb.core.split_view import SplitView
 		self._split_view = SplitView(self, channel=getattr(self, '_channel', None))
 		self._stack.addWidget(self._split_view)
 		self._stack.setCurrentWidget(self._split_view)
 		self._split_mode = True
 		self._notify_split_changed()
+		# 分屏切换后重新注册 DWM 阴影，防止边框丢失
+		self._init_dwm_shadow()
 		if left_file:
 			self._load_file_in_view(self._split_view.left_view, left_file)
 		if right_file:
@@ -574,6 +585,7 @@ class MainWindow(QMainWindow):
 	def exit_split_mode(self):
 		if not self._split_mode:
 			return
+		self._suppress_auto_hide_for(3000)
 		self._stack.setCurrentWidget(self._single_container)
 		if self._split_view:
 			self._split_view.destroy()
@@ -581,6 +593,8 @@ class MainWindow(QMainWindow):
 			self._split_view = None
 		self._split_mode = False
 		self._notify_split_changed()
+		# 退出分屏后重新注册 DWM 阴影，防止边框丢失
+		self._init_dwm_shadow()
 
 	def toggle_split_mode(self):
 		if self._split_mode:
@@ -607,25 +621,27 @@ class MainWindow(QMainWindow):
 		webview.setUrl(url)
 
 	def _notify_split_changed(self):
-		if hasattr(self, "__bridge") and self._bridge:
+		if hasattr(self, "_bridge") and self._bridge:
 			self._bridge.splitModeChanged.emit(self._split_mode)
 
 	def _is_in_hotzone(self, pos):
 		return 0 <= pos.y() <= HOTZONE_HEIGHT and 0 <= pos.x() <= self.width()
 
 	def _show_header(self):
-		if hasattr(self, "__title_bar") and self._title_bar:
+		if hasattr(self, "_title_bar") and self._title_bar:
 			if not self._title_bar.is_fully_visible():
 				self._title_bar.slide_in()
 			self._hide_timer.stop()
 
 	def _hide_header(self):
-		if hasattr(self, "__title_bar") and self._title_bar:
+		if hasattr(self, "_title_bar") and self._title_bar:
 			if self._title_bar.is_fully_visible():
 				self._title_bar.slide_out()
 			self._hide_timer.stop()
 
 	def _on_hide_timeout(self):
+		if self._suppress_auto_hide:
+			return
 		if self._immersive_mode:
 			self._hide_header()
 
@@ -649,7 +665,7 @@ class MainWindow(QMainWindow):
 		super().enterEvent(event)
 
 	def leaveEvent(self, event):
-		if self._immersive_mode and self._header_auto_hide:
+		if self._immersive_mode and self._header_auto_hide and not self._suppress_auto_hide:
 			self._hide_timer.start(AUTOHIDE_DELAY_MS)
 			self._mouse_in_hotzone = False
 		super().leaveEvent(event)
@@ -718,7 +734,7 @@ class MainWindow(QMainWindow):
 		super().keyPressEvent(event)
 
 	def _new_window_shortcut(self):
-		if hasattr(self, "__bridge") and self._bridge:
+		if hasattr(self, "_bridge") and self._bridge:
 			self._bridge.newWindowRequested.emit()
 
 	def _toggle_theme(self):
@@ -733,7 +749,7 @@ class MainWindow(QMainWindow):
 
 	def resizeEvent(self, event):
 		super().resizeEvent(event)
-		if hasattr(self, "__title_bar") and self._title_bar:
+		if hasattr(self, "_title_bar") and self._title_bar:
 			self._title_bar.setFixedWidth(self.width())
 
 	def nativeEvent(self, eventType, event):
@@ -745,11 +761,11 @@ class MainWindow(QMainWindow):
 		wparam = int(event[2])
 		lparam = int(event[3])
 
-		# WM_NCHITTEST
+		# WM_NCHITTEST (lparam 包含屏幕坐标 x=low16, y=high16)
 		if msg == 0x0084:
+			x = lparam & 0xFFFF
+			y = (lparam >> 16) & 0xFFFF
 			if self.isMaximized():
-				x = wparam & 0xFFFF
-				y = (wparam >> 16) & 0xFFFF
 				try:
 					rect = self.geometry()
 					lx = x - rect.x()
@@ -761,8 +777,6 @@ class MainWindow(QMainWindow):
 				except Exception:
 					return True, 1
 
-			x = wparam & 0xFFFF
-			y = (wparam >> 16) & 0xFFFF
 			border = 8
 			try:
 				rect = self.geometry()
@@ -876,6 +890,14 @@ class MainWindow(QMainWindow):
 		except Exception:
 			pass
 
+	def _suppress_auto_hide_for(self, ms):
+		"""在拖入文件后短暂抑制沉浸式隐藏，避免标题栏在预览稳定前滑出"""
+		self._suppress_auto_hide = True
+		QTimer.singleShot(ms, self._on_suppress_timeout)
+
+	def _on_suppress_timeout(self):
+		self._suppress_auto_hide = False
+
 	def _safe_restore_title_bar(self):
 		"""安全恢复标题栏到完全显示状态"""
 		if not hasattr(self, "_title_bar") or not self._title_bar:
@@ -892,10 +914,16 @@ class MainWindow(QMainWindow):
 			logger.warning("[_safe_restore_title_bar] %s", e)
 
 	def showEvent(self, event):
-		"""窗口每次可见时强制恢复标题栏，并注册 Win32 拖拽"""
+		"""窗口每次可见时强制恢复标题栏，注册 Win32 拖拽，重注册 DWM 阴影"""
 		logger.debug("[showEvent] 窗口显示事件")
 		super().showEvent(event)
 		self._safe_restore_title_bar()
+		# 重注册 DWM 阴影：最小化再恢复后 Qt 可能会重置帧扩展，需要补调
+		if sys.platform == "win32":
+			try:
+				self._init_dwm_shadow()
+			except Exception as e:
+				logger.debug("[showEvent] DWM shadow reinit failed: %s", e)
 		# 注册 WM_DROPFILES（窗口句柄此时已有效）
 		if sys.platform == "win32":
 			try:

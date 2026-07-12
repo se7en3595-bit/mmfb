@@ -6,8 +6,8 @@ We currently support the following versions with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.6.x   | ✅ Yes             |
-| < 0.6   | ❌ No              |
+| 0.8.x   | ✅ Yes             |
+| < 0.8   | ❌ No              |
 
 ## Reporting a Vulnerability
 
@@ -81,7 +81,7 @@ safety check
 
 正式版本使用 EV 代码签名证书签名，确保应用来源可信。
 
-- v0.6.0: 自签名证书（暂未签名）
+- v0.8.0: 自签名证书（暂未签名）
 
 ---
 

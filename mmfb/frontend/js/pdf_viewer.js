@@ -73,7 +73,7 @@
         _renderShell: function () {
             if (!this._root) return;
 
-            var filePath = this._config.file_path || '';
+            var filePath = this._config.file_path || this._config.file_path_or_url || this._config.filePath || '';
             var fileName = this._config.fileName;
             if (!fileName) {
                 // 从 filePath 提取文件名
@@ -215,7 +215,7 @@
         _openFile: function () {
             var self = this;
             var container = this._root.querySelector('#pdf-canvas-container');
-            var filePath = this._config.file_path;
+            var filePath = this._config.file_path || this._config.file_path_or_url || this._config.filePath;
 
             if (!filePath || typeof global.pdfjsLib === 'undefined') {
                 return;
@@ -224,7 +224,8 @@
             console.log('[PDF] reading file via bridge:', filePath);
 
             // 通过 Python bridge 读取文件为 base64，解码为 ArrayBuffer 后传给 PDF.js
-            global.MMFBBridge.api.readFileBase64(filePath).then(function (b64) {
+            var api = global.MMFBBridge.api || global.MMFBBridge;
+            api.readFileBase64(filePath).then(function (b64) {
                 if (self._destroyed) return;
                 if (!b64 || b64.indexOf('[') === 0) {
                     // 错误消息（"[Error..." 或 "[File too large]"）

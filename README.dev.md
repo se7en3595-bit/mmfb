@@ -223,7 +223,7 @@ window.pybridge.setDebug(true);
 - [ ] 提交并推送到远程
 - [ ] 创建 Pull Request，填写 PR 模板
 
-**当前版本：** v0.6.0
+**当前版本：** v0.8.0
 
 ---
 

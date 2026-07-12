@@ -193,6 +193,8 @@
     color: var(--color-text-primary);
     cursor: default;
     transition: background var(--transition-fast);
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 .xlsx-table__cell:hover {

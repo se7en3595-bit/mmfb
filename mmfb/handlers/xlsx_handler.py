@@ -43,7 +43,7 @@ class XlsxHandler(BaseHandler):
 
             file_size = os.path.getsize(self.path)
             try:
-                wb = load_workbook(self.path, read_only=True, data_only=False)
+                wb = load_workbook(self.path, read_only=False, data_only=False)
             except Exception as e:
                 return self._make_error(f"open failed: {e}", file_size)
 
@@ -194,34 +194,23 @@ class XlsxHandler(BaseHandler):
 
     @staticmethod
     def _extract_style(cell) -> Dict[str, Any]:
-        """提取单元格关键样式
-
-        注意: openpyxl 在颜色为"自动"时返回 "00000000"（ARGB 全透明黑），
-        这不是有效颜色，需跳过，让前端回退到 CSS 默认文本色。
-        """
+        """提取单元格关键样式"""
         style: Dict[str, Any] = {}
-
-        def _is_auto_color(raw) -> bool:
-            """判断是否为 openpyxl "自动"颜色标记"""
-            if not raw:
-                return True
-            s = str(raw).replace(":", "").replace("#", "").upper()
-            return s == "00000000" or s == "000000" or s == ""
-
         try:
+            wb = cell.parent.parent
             if cell.font:
                 if cell.font.bold:
                     style["bold"] = True
                 if cell.font.italic:
                     style["italic"] = True
-                if cell.font.color and cell.font.color.rgb:
-                    rgb_raw = str(cell.font.color.rgb)
-                    if not _is_auto_color(rgb_raw):
-                        style["color"] = rgb_raw
-            if cell.fill and cell.fill.fgColor and cell.fill.fgColor.rgb:
-                bg = str(cell.fill.fgColor.rgb)
-                if not _is_auto_color(bg):
-                    style["bgColor"] = bg
+                if cell.font.color:
+                    color_val = _resolve_color(wb, cell.font.color)
+                    if color_val:
+                        style["color"] = color_val
+            if cell.fill and cell.fill.fgColor:
+                bg_val = _resolve_color(wb, cell.fill.fgColor)
+                if bg_val:
+                    style["bgColor"] = bg_val
             if cell.alignment:
                 if cell.alignment.horizontal == "center":
                     style["align"] = "center"
@@ -229,7 +218,6 @@ class XlsxHandler(BaseHandler):
                     style["align"] = "right"
         except Exception:
             pass
-
         return style
 
     def _make_error(self, error_msg: str, file_size: int = 0) -> Dict[str, Any]:
@@ -247,3 +235,83 @@ class XlsxHandler(BaseHandler):
             "editable": False,
             "error": error_msg,
         }
+
+def _get_theme_color_from_wb(wb, theme_idx) -> Optional[str]:
+    theme = getattr(wb, 'theme', None)
+    if not theme:
+        return None
+    try:
+        if isinstance(theme, (str, bytes)):
+            import xml.etree.ElementTree as ET
+            root = ET.fromstring(theme)
+            ns = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+            clr_scheme = root.find('.//a:clrScheme', ns)
+            if clr_scheme is not None:
+                color_names = ["lt1", "dk1", "lt2", "dk2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6", "hlink", "folHlink"]
+                if 0 <= theme_idx < len(color_names):
+                    name = color_names[theme_idx]
+                    color_node = clr_scheme.find(f'./a:{name}', ns)
+                    if color_node is not None:
+                        srgb = color_node.find('./a:srgbClr', ns)
+                        if srgb is not None and 'val' in srgb.attrib:
+                            return srgb.attrib['val']
+                        sys_clr = color_node.find('./a:sysClr', ns)
+                        if sys_clr is not None and 'lastClr' in sys_clr.attrib:
+                            return sys_clr.attrib['lastClr']
+    except Exception:
+        pass
+    return None
+
+def _resolve_color(wb, color_obj) -> Optional[str]:
+    if color_obj is None:
+        return None
+    rgb = None
+    if color_obj.type == 'rgb' and color_obj.rgb:
+        rgb = str(color_obj.rgb)
+    elif color_obj.type == 'indexed' and color_obj.indexed is not None:
+        try:
+            from openpyxl.styles.colors import COLOR_INDEX
+            if 0 <= color_obj.indexed < len(COLOR_INDEX):
+                rgb = COLOR_INDEX[color_obj.indexed]
+        except Exception:
+            pass
+    elif color_obj.type == 'theme' and color_obj.theme is not None:
+        rgb = _get_theme_color_from_wb(wb, color_obj.theme)
+        if not rgb:
+            DEFAULT_THEME_COLORS = [
+                "FFFFFF", "000000", "EEECE1", "1F497D",
+                "4F81BD", "C0504D", "9BBB59", "8064A2",
+                "4BACC6", "F79646", "0000FF", "800080"
+            ]
+            if 0 <= color_obj.theme < len(DEFAULT_THEME_COLORS):
+                rgb = DEFAULT_THEME_COLORS[color_obj.theme]
+    if not rgb:
+        return None
+    rgb = rgb.replace("#", "").replace(":", "").upper()
+    if len(rgb) == 8:
+        if rgb.startswith("00"):
+            return None
+        rgb = rgb[2:]
+    elif len(rgb) != 6:
+        return None
+    tint = getattr(color_obj, 'tint', 0.0)
+    if tint and tint != 0.0:
+        try:
+            r = int(rgb[0:2], 16)
+            g = int(rgb[2:4], 16)
+            b = int(rgb[4:6], 16)
+            if tint > 0:
+                r = int(r + (255 - r) * tint)
+                g = int(g + (255 - g) * tint)
+                b = int(b + (255 - b) * tint)
+            else:
+                r = int(r * (1 + tint))
+                g = int(g * (1 + tint))
+                b = int(b * (1 + tint))
+            r = max(0, min(255, r))
+            g = max(0, min(255, g))
+            b = max(0, min(255, b))
+            rgb = f"{r:02X}{g:02X}{b:02X}"
+        except Exception:
+            pass
+    return rgb

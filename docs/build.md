@@ -87,8 +87,8 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon='mmfb/resources/icon.ico',  # 应用图标
-    file_version='0.6.0.0',
-    product_version='0.6.0',
+    file_version='0.8.0.0',
+    product_version='0.8.0',
 )
 ```
 
@@ -206,7 +206,7 @@ datas=[
 
 ; 基本信息
 Name "MMFB Windows"
-OutFile "MMFB-Setup-0.6.0.exe"
+OutFile "MMFB-Setup-0.8.0.exe"
 InstallDir "$PROGRAMFILES64\MMFB"
 RequestExecutionLevel admin
 
@@ -257,7 +257,7 @@ pyinstaller build.spec
 # 编译 NSIS 脚本
 makensis installer.nsi
 
-# 输出：MMFB-Setup-0.6.0.exe
+# 输出：MMFB-Setup-0.8.0.exe
 ```
 
 ### 代码签名（可选但强烈推荐）
@@ -273,7 +273,7 @@ makensis installer.nsi
 
 3. **签名安装包**
    ```bash
-   signtool sign /f certificate.pfx /p password /tr http://timestamp.digicert.com /td sha256 /fd sha256 MMFB-Setup-0.6.0.exe
+   signtool sign /f certificate.pfx /p password /tr http://timestamp.digicert.com /td sha256 /fd sha256 MMFB-Setup-0.8.0.exe
    ```
 
 ### 优化安装包体积
@@ -299,13 +299,13 @@ makensis installer.nsi
 
 **触发条件：**
 - push 到 `main` 或 `develop` 分支 → 运行测试
-- 创建 Git Tag（如 `v0.6.0`）→ 运行测试 + 打包 + 创建 Release
+- 创建 Git Tag（如 `v0.8.0`）→ 运行测试 + 打包 + 创建 Release
 
 **手动触发构建：**
 ```bash
 # 创建 tag
-git tag v0.6.0
-git push origin v0.6.0
+git tag v0.8.0
+git push origin v0.8.0
 
 # GitHub Actions 自动：
 # 1. 运行测试
@@ -346,7 +346,7 @@ def build_exe():
 def build_installer():
     """使用 NSIS 制作安装包"""
     subprocess.run(['makensis', 'installer.nsi'], check=True)
-    print("✅ Installer build complete: MMFB-Setup-0.6.0.exe")
+    print("✅ Installer build complete: MMFB-Setup-0.8.0.exe")
 
 def main():
     commands = {
@@ -412,8 +412,8 @@ dir MMFB-Setup-*.exe
 
 ```bash
 # 创建 tag
-git tag -a v0.6.0 -m "Release v0.6.0"
-git push origin v0.6.0
+git tag -a v0.8.0 -m "Release v0.8.0"
+git push origin v0.8.0
 
 # GitHub Actions 自动构建并创建 Release Draft
 # 手动确认后发布

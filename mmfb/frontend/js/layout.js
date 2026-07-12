@@ -260,7 +260,7 @@
             this._splitMode = false;
 
             if (global.MMFBBridge) {
-                global.MMFBBridge.exitSplit().then(function (data) {
+                global.MMFBBridge.toggleSplit().then(function (data) {
                     console.log('[MMFB] exited split:', data);
                 });
             }

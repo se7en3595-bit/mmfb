@@ -153,6 +153,13 @@
             var fileExt = (params.ext || '').toLowerCase();
             var fileName = filePath.split(/[\\/]/).pop() || '未知文件';
 
+            // 防重入：如果同一个 filePath 已在加载/已加载，跳过（router navigate 可能在 hashchange 时二次触发 render）
+            if (root.getAttribute('data-loading-file') === filePath) {
+                console.log('[Pages.view] duplicate view call for same file, skipping:', filePath);
+                return { destroy: function () {} };
+            }
+            root.setAttribute('data-loading-file', filePath);
+
             if (!filePath) {
                 return this._viewError(root, '未指定文件路径');
             }
