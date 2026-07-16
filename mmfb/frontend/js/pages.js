@@ -198,19 +198,6 @@
                 return this._viewPsd(root, filePath, fileName, fileExt, query);
             }
 
-            // 图像走专属查看器（包含所有光栅图像 + 相机 RAW）
-            var imageExts = [
-                'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico',
-                'heic', 'heif', 'avif',
-                // 相机 RAW 格式（23 种，均复用 MMFBImageViewer）
-                'cr2', 'cr3', 'crw', 'nef', 'nrw', 'arw', 'arq', 'srf', 'sr2',
-                'dng', 'orf', 'rw2', 'pef', 'ptx', 'raf', 'x3f',
-                '3fr', 'fff', 'iiq', 'mos', 'rwl', 'raw',
-            ];
-            if (imageExts.indexOf(fileExt) >= 0) {
-                return this._viewImage(root, filePath, fileName, fileExt, query);
-            }
-
             // 媒体走专属查看器
             var mediaExts = [
                 'mp4', 'webm', 'mkv', 'avi', 'mov', 'wmv', 'flv',
@@ -218,6 +205,18 @@
             ];
             if (mediaExts.indexOf(fileExt) >= 0) {
                 return this._viewMedia(root, filePath, fileName, fileExt, query);
+            }
+
+            // 图像走专属查看器（包含所有光栅图像 + 相机 RAW）
+            var imageExts = [
+                'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico',
+                'heic', 'heif', 'avif',
+                'cr2', 'cr3', 'crw', 'nef', 'nrw', 'arw', 'arq', 'srf', 'sr2',
+                'dng', 'orf', 'rw2', 'pef', 'ptx', 'raf', 'x3f',
+                '3fr', 'fff', 'iiq', 'mos', 'rwl', 'raw',
+            ];
+            if (imageExts.indexOf(fileExt) >= 0) {
+                return this._viewImage(root, filePath, fileName, fileExt, query);
             }
 
             // 3D 模型走专属查看器

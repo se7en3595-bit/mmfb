@@ -411,7 +411,7 @@
                 textLayer.style.height = viewport.height + 'px';
 
                 global.pdfjsLib.renderTextLayer({
-                    textContent: textLayer,
+                    textContent: textContent,
                     container: textLayer,
                     viewport: viewport,
                     textDivs: [],

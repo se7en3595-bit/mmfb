@@ -184,7 +184,7 @@ class MainWindow(QMainWindow):
 
 		# 鼠标追踪状态
 		self._mouse_in_hotzone = False
-		self._immersive_mode = True
+		self._immersive_mode = False
 		self._header_auto_hide = False  # 启动后固定显示标题栏
 		self._suppress_auto_hide = False  # 拖入文件后短暂抑制自动隐藏
 
@@ -321,6 +321,8 @@ class MainWindow(QMainWindow):
 
 	def _init_bridge(self):
 		self._bridge = MMFBBridge()
+		self._bridge.set_dialog_parent(self)
+		self._bridge.set_window(self)
 		self._channel = QWebChannel()
 		self._channel.registerObject("pybridge", self._bridge)
 		self._webview.page().setWebChannel(self._channel)

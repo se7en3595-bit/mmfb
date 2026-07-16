@@ -38,7 +38,7 @@ _DEFAULTS = {
     "display": {
         "theme": "warm",              # warm | light | dark
         "font_size": 14,              # 前端基准字号 px
-        "immersive_mode": True,
+        "immersive_mode": False,
         "show_footer": True,
     },
     "shortcuts": {

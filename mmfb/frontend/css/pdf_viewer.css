@@ -107,6 +107,10 @@
     overflow: hidden;
     opacity: 0.2;
     line-height: 1.0;
+    user-select: text;
+    -webkit-user-select: text;
+    pointer-events: auto;
+    z-index: 2;
 }
 
 .pdf-text-layer > span {
@@ -115,6 +119,13 @@
     white-space: pre;
     cursor: text;
     transform-origin: 0% 0%;
+    user-select: text;
+    -webkit-user-select: text;
+    pointer-events: auto;
+}
+
+.pdf-text-layer ::selection {
+    background: rgba(0, 51, 204, 0.3);
 }
 
 .pdf-text-layer .highlight {

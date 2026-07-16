@@ -43,7 +43,7 @@ class XlsxHandler(BaseHandler):
 
             file_size = os.path.getsize(self.path)
             try:
-                wb = load_workbook(self.path, read_only=False, data_only=False)
+                wb = load_workbook(self.path, read_only=False, data_only=True)
             except Exception as e:
                 return self._make_error(f"open failed: {e}", file_size)
 

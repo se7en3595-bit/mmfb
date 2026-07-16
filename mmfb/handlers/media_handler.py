@@ -39,6 +39,12 @@ VIDEO_EXTENSIONS = [
     ".ts",
     ".m2ts", ".mts",
     ".3gp",
+    ".mpg", ".mpeg",
+    ".vob",
+    ".divx",
+    ".rmvb",
+    ".rm",
+    ".asf",
 ]
 
 # 音频扩展名
